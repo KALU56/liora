@@ -23,6 +23,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _openNoteEditor(Map<String, dynamic> note) {
+    Navigator.of(context).pushNamed(
+      AppRoutes.noteEditor,
+      arguments: note,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,9 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     subtitle: Text(
                       'Modified: ${note['date'] ?? 'Just now'} • 1 page',
                     ),
-                    onTap: () {
-                      Navigator.of(context).pushNamed(AppRoutes.editor);
-                    },
+                    onTap: () => _openNoteEditor(note),
                   ),
                 );
               },
