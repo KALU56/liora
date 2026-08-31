@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
@@ -65,19 +66,24 @@ abstract class AppTheme {
           borderRadius: BorderRadius.circular(AppSpacing.sm),
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
-        labelStyle: AppTypography.bodyText.copyWith(color: AppColors.lightTextSecondary),
-        hintStyle: AppTypography.bodyText.copyWith(color: AppColors.lightTextSecondary),
+        labelStyle: AppTypography.bodyText.copyWith(
+          color: AppColors.lightTextSecondary,
+        ),
+        hintStyle: AppTypography.bodyText.copyWith(
+          color: AppColors.lightTextSecondary,
+        ),
       ),
-      textTheme: const TextTheme(
-        headlineMedium: AppTypography.appTitle,
-        titleLarge: AppTypography.pageTitle,
-        bodyMedium: AppTypography.bodyText,
-        bodySmall: AppTypography.smallText,
-        labelLarge: AppTypography.buttonText,
-      ).apply(
-        bodyColor: AppColors.lightTextPrimary,
-        displayColor: AppColors.lightTextPrimary,
-      ),
+      textTheme:
+          const TextTheme(
+            headlineMedium: AppTypography.appTitle,
+            titleLarge: AppTypography.pageTitle,
+            bodyMedium: AppTypography.bodyText,
+            bodySmall: AppTypography.smallText,
+            labelLarge: AppTypography.buttonText,
+          ).apply(
+            bodyColor: AppColors.lightTextPrimary,
+            displayColor: AppColors.lightTextPrimary,
+          ),
     );
   }
 
@@ -99,7 +105,9 @@ abstract class AppTheme {
         foregroundColor: AppColors.darkTextPrimary,
         elevation: 0,
         scrolledUnderElevation: 1,
-        titleTextStyle: AppTypography.pageTitle.copyWith(color: AppColors.darkTextPrimary),
+        titleTextStyle: AppTypography.pageTitle.copyWith(
+          color: AppColors.darkTextPrimary,
+        ),
       ),
       cardTheme: CardThemeData(
         color: AppColors.darkSurface,
@@ -142,19 +150,34 @@ abstract class AppTheme {
           borderRadius: BorderRadius.circular(AppSpacing.sm),
           borderSide: const BorderSide(color: AppColors.primaryLight, width: 2),
         ),
-        labelStyle: AppTypography.bodyText.copyWith(color: AppColors.darkTextSecondary),
-        hintStyle: AppTypography.bodyText.copyWith(color: AppColors.darkTextSecondary),
+        labelStyle: AppTypography.bodyText.copyWith(
+          color: AppColors.darkTextSecondary,
+        ),
+        hintStyle: AppTypography.bodyText.copyWith(
+          color: AppColors.darkTextSecondary,
+        ),
       ),
-      textTheme: TextTheme(
-        headlineMedium: AppTypography.appTitle.copyWith(color: AppColors.darkTextPrimary),
-        titleLarge: AppTypography.pageTitle.copyWith(color: AppColors.darkTextPrimary),
-        bodyMedium: AppTypography.bodyText.copyWith(color: AppColors.darkTextPrimary),
-        bodySmall: AppTypography.smallText.copyWith(color: AppColors.darkTextSecondary),
-        labelLarge: AppTypography.buttonText.copyWith(color: AppColors.darkTextPrimary),
-      ).apply(
-        bodyColor: AppColors.darkTextPrimary,
-        displayColor: AppColors.darkTextPrimary,
-      ),
+      textTheme:
+          TextTheme(
+            headlineMedium: AppTypography.appTitle.copyWith(
+              color: AppColors.darkTextPrimary,
+            ),
+            titleLarge: AppTypography.pageTitle.copyWith(
+              color: AppColors.darkTextPrimary,
+            ),
+            bodyMedium: AppTypography.bodyText.copyWith(
+              color: AppColors.darkTextPrimary,
+            ),
+            bodySmall: AppTypography.smallText.copyWith(
+              color: AppColors.darkTextSecondary,
+            ),
+            labelLarge: AppTypography.buttonText.copyWith(
+              color: AppColors.darkTextPrimary,
+            ),
+          ).apply(
+            bodyColor: AppColors.darkTextPrimary,
+            displayColor: AppColors.darkTextPrimary,
+          ),
     );
   }
 }
