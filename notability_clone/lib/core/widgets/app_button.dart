@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_spacing.dart';
 
 enum AppButtonVariant { primary, secondary, text }
@@ -33,7 +34,10 @@ class AppButton extends StatelessWidget {
           const SizedBox(
             width: 18,
             height: 18,
-            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(width: AppSpacing.sm),
         ] else if (icon != null) ...[

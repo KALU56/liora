@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../theme/app_spacing.dart';
 
 class AppCard extends StatelessWidget {
@@ -22,10 +23,7 @@ class AppCard extends StatelessWidget {
     final cardWidget = Card(
       color: color,
       margin: margin ?? EdgeInsets.zero,
-      child: Padding(
-        padding: padding ?? AppSpacing.paddingLg,
-        child: child,
-      ),
+      child: Padding(padding: padding ?? AppSpacing.paddingLg, child: child),
     );
 
     if (onTap != null) {
