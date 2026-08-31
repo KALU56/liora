@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:notability_clone/features/notes/presentation/widgets/note_card.dart';
 import 'package:notability_clone/main.dart';
 
 void main() {
@@ -53,7 +54,7 @@ void main() {
       // Verify empty library state is gone and new note appears in list
       expect(find.text('No Notes Yet'), findsNothing);
       expect(find.text('Biology Chapter 1'), findsOneWidget);
-      expect(find.byKey(const Key('note_card_0')), findsOneWidget);
+      expect(find.byType(NoteCard), findsOneWidget);
     });
   });
 }
