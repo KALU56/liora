@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 /// Supported paper background patterns.
 enum PaperPattern {
   blank('Blank', 'Plain paper without guidelines', Icons.crop_din),
-  ruled('Ruled', 'Horizontal guidelines for handwriting', Icons.format_align_left),
+  ruled(
+    'Ruled',
+    'Horizontal guidelines for handwriting',
+    Icons.format_align_left,
+  ),
   grid('Grid', 'Square grid cells for alignment & math', Icons.grid_on),
   dotted('Dotted', 'Evenly spaced dots for bullet journaling', Icons.grain);
 
@@ -70,10 +74,12 @@ class PaperTemplate {
   });
 
   /// Page width based on orientation.
-  double get width => orientation == PageOrientation.portrait ? baseWidth : baseHeight;
+  double get width =>
+      orientation == PageOrientation.portrait ? baseWidth : baseHeight;
 
   /// Page height based on orientation.
-  double get height => orientation == PageOrientation.portrait ? baseHeight : baseWidth;
+  double get height =>
+      orientation == PageOrientation.portrait ? baseHeight : baseWidth;
 
   /// Size object matching page dimensions.
   Size get pageSize => Size(width, height);
@@ -144,7 +150,9 @@ class PaperTemplate {
       gridSize: (json['gridSize'] as num?)?.toDouble() ?? 32.0,
       dotSpacing: (json['dotSpacing'] as num?)?.toDouble() ?? 32.0,
       dotRadius: (json['dotRadius'] as num?)?.toDouble() ?? 1.5,
-      lineColor: json['lineColor'] != null ? Color(json['lineColor'] as int) : null,
+      lineColor: json['lineColor'] != null
+          ? Color(json['lineColor'] as int)
+          : null,
       baseWidth: (json['baseWidth'] as num?)?.toDouble() ?? 612.0,
       baseHeight: (json['baseHeight'] as num?)?.toDouble() ?? 792.0,
     );

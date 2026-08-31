@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -24,10 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openNoteEditor(Map<String, dynamic> note) {
-    Navigator.of(context).pushNamed(
-      AppRoutes.noteEditor,
-      arguments: note,
-    );
+    Navigator.of(context).pushNamed(AppRoutes.noteEditor, arguments: note);
   }
 
   @override

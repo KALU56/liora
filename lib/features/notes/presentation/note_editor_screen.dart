@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../paper/domain/models/paper_template.dart';
 import '../../paper/presentation/widgets/paper_canvas_widget.dart';
 import '../../paper/presentation/widgets/paper_customization_sheet.dart';
@@ -21,7 +22,8 @@ class NoteEditorScreen extends StatefulWidget {
 
 class _NoteEditorScreenState extends State<NoteEditorScreen> {
   late PaperTemplate _paperTemplate;
-  final TransformationController _transformationController = TransformationController();
+  final TransformationController _transformationController =
+      TransformationController();
 
   @override
   void initState() {
@@ -80,10 +82,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFE5E5E5),
       appBar: AppBar(
-        title: Text(
-          widget.title,
-          key: const Key('editor_title'),
-        ),
+        title: Text(widget.title, key: const Key('editor_title')),
         actions: [
           IconButton(
             key: const Key('paper_settings_button'),
@@ -125,7 +124,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 borderRadius: BorderRadius.circular(24.0),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 4.0,
+                  vertical: 4.0,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

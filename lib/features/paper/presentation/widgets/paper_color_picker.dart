@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/models/paper_template.dart';
 
 /// Palette widget for selecting paper background colors.
@@ -30,7 +31,8 @@ class PaperColorPicker extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: PaperColorOption.presets.map((preset) {
-              final isSelected = selectedColor.toARGB32() == preset.color.toARGB32();
+              final isSelected =
+                  selectedColor.toARGB32() == preset.color.toARGB32();
               final isDark = preset.color.computeLuminance() < 0.5;
 
               return Padding(
@@ -38,7 +40,9 @@ class PaperColorPicker extends StatelessWidget {
                 child: Tooltip(
                   message: preset.name,
                   child: InkWell(
-                    key: Key('paper_color_${preset.name.toLowerCase().replaceAll(' ', '_')}'),
+                    key: Key(
+                      'paper_color_${preset.name.toLowerCase().replaceAll(' ', '_')}',
+                    ),
                     onTap: () => onColorChanged(preset.color),
                     borderRadius: BorderRadius.circular(20.0),
                     child: Container(

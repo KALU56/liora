@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -6,10 +7,7 @@ import '../../../../core/widgets/app_button.dart';
 class EmptyLibraryView extends StatelessWidget {
   final VoidCallback onCreateNote;
 
-  const EmptyLibraryView({
-    super.key,
-    required this.onCreateNote,
-  });
+  const EmptyLibraryView({super.key, required this.onCreateNote});
 
   @override
   Widget build(BuildContext context) {

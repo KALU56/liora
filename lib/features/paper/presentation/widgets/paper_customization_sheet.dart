@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/models/paper_template.dart';
 import 'paper_color_picker.dart';
 import 'paper_orientation_selector.dart';
@@ -34,7 +35,8 @@ class PaperCustomizationSheet extends StatefulWidget {
   }
 
   @override
-  State<PaperCustomizationSheet> createState() => _PaperCustomizationSheetState();
+  State<PaperCustomizationSheet> createState() =>
+      _PaperCustomizationSheetState();
 }
 
 class _PaperCustomizationSheetState extends State<PaperCustomizationSheet> {
@@ -112,14 +114,18 @@ class _PaperCustomizationSheetState extends State<PaperCustomizationSheet> {
           PaperColorPicker(
             selectedColor: _currentTemplate.backgroundColor,
             onColorChanged: (color) {
-              _updateTemplate(_currentTemplate.copyWith(backgroundColor: color));
+              _updateTemplate(
+                _currentTemplate.copyWith(backgroundColor: color),
+              );
             },
           ),
           const SizedBox(height: 20.0),
           PaperOrientationSelector(
             selectedOrientation: _currentTemplate.orientation,
             onOrientationChanged: (orientation) {
-              _updateTemplate(_currentTemplate.copyWith(orientation: orientation));
+              _updateTemplate(
+                _currentTemplate.copyWith(orientation: orientation),
+              );
             },
           ),
           const SizedBox(height: 24.0),

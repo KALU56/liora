@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/models/paper_template.dart';
 
 /// Toggle selector for Page Orientation (Portrait / Landscape).
@@ -65,7 +66,9 @@ class PaperOrientationSelector extends StatelessWidget {
                           orientation.displayName,
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                             color: isSelected
                                 ? Theme.of(context).primaryColor
                                 : Colors.black87,

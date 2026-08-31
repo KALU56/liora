@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../domain/models/paper_template.dart';
 
 /// CustomPainter responsible for rendering page background colors,
@@ -57,7 +58,11 @@ class PaperPainter extends CustomPainter {
         ..strokeWidth = 1.0
         ..style = PaintingStyle.stroke;
       const double marginX = 48.0;
-      canvas.drawLine(const Offset(marginX, 0), Offset(marginX, size.height), marginPaint);
+      canvas.drawLine(
+        const Offset(marginX, 0),
+        Offset(marginX, size.height),
+        marginPaint,
+      );
     }
   }
 
