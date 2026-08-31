@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/app_text_field.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_text_field.dart';
 
 class NewNoteScreen extends StatefulWidget {
   const NewNoteScreen({super.key});
@@ -18,6 +17,16 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
   void dispose() {
     _titleController.dispose();
     super.dispose();
+  }
+
+  void _submit() {
+    final title = _titleController.text.trim();
+    final noteTitle = title.isEmpty ? 'Untitled Note' : title;
+    Navigator.of(context).pop({
+      'title': noteTitle,
+      'date': 'Today',
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+    });
   }
 
   @override
@@ -37,11 +46,10 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
             ),
             AppSpacing.gapXl,
             AppButton(
+              key: const Key('submit_create_note_button'),
               label: 'Create Note',
               isFullWidth: true,
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: _submit,
             ),
           ],
         ),
