@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:notability_clone/main.dart';
 
@@ -5,13 +6,14 @@ void main() {
   testWidgets('Foundation app smoke test & navigation', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const PaperNoteApp());
+    await tester.pumpAndSettle();
 
-    // Verify home screen is loaded.
-    expect(find.text('Welcome to PaperNote'), findsOneWidget);
-    expect(find.text('New Note'), findsOneWidget);
+    // Verify home screen is loaded with empty state.
+    expect(find.text('PaperNote'), findsOneWidget);
+    expect(find.text('No Notes Yet'), findsOneWidget);
 
-    // Tap New Note button and trigger transition.
-    await tester.tap(find.text('New Note'));
+    // Tap Create Note button and trigger transition.
+    await tester.tap(find.byKey(const Key('create_first_note_button')));
     await tester.pumpAndSettle();
 
     // Verify NewNoteScreen is displayed.

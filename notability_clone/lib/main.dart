@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'core/routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
-import 'features/library/presentation/home_screen.dart';
 
 void main() {
   runApp(const PaperNoteApp());
@@ -17,7 +17,8 @@ class PaperNoteApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const HomeScreen(),
+      initialRoute: AppRoutes.home,
+      routes: AppRoutes.routes,
     );
   }
 }
