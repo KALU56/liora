@@ -12,11 +12,7 @@ class TouchPoint {
     required this.timestamp,
   });
 
-  TouchPoint copyWith({
-    Offset? offset,
-    double? pressure,
-    DateTime? timestamp,
-  }) {
+  TouchPoint copyWith({Offset? offset, double? pressure, DateTime? timestamp}) {
     return TouchPoint(
       offset: offset ?? this.offset,
       pressure: pressure ?? this.pressure,
