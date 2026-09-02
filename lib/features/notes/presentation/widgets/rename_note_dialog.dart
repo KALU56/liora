@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
+
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 
 class RenameNoteDialog extends StatefulWidget {
   final String currentTitle;
 
-  const RenameNoteDialog({
-    super.key,
-    required this.currentTitle,
-  });
+  const RenameNoteDialog({super.key, required this.currentTitle});
 
   @override
   State<RenameNoteDialog> createState() => _RenameNoteDialogState();

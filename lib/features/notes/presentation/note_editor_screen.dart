@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 
+import '../../canvas/domain/models/stroke.dart';
+import '../../canvas/presentation/widgets/handwriting_canvas_widget.dart';
 import '../../paper/domain/models/paper_template.dart';
 import '../../paper/presentation/widgets/paper_canvas_widget.dart';
 import '../../paper/presentation/widgets/paper_customization_sheet.dart';
 
 /// Screen representing the notebook canvas editor.
-/// Supports InteractiveViewer panning/zooming and real-time Paper Template customization.
+/// Supports InteractiveViewer panning/zooming, real-time Paper Template customization,
+/// and smooth handwriting stroke drawing.
 class NoteEditorScreen extends StatefulWidget {
   final String title;
   final PaperTemplate initialTemplate;
+  final List<Stroke>? initialStrokes;
 
   const NoteEditorScreen({
     super.key,
     this.title = 'Untitled Note',
     this.initialTemplate = const PaperTemplate(),
+    this.initialStrokes,
   });
 
   @override
@@ -24,11 +29,18 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   late PaperTemplate _paperTemplate;
   final TransformationController _transformationController =
       TransformationController();
+  List<Stroke> _strokes = [];
+  bool _isPenMode = true;
+  final Color _penColor = Colors.black;
+  final double _penWidth = 3.0;
 
   @override
   void initState() {
     super.initState();
     _paperTemplate = widget.initialTemplate;
+    if (widget.initialStrokes != null) {
+      _strokes = List.from(widget.initialStrokes!);
+    }
   }
 
   @override
@@ -63,7 +75,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   void _zoomIn() {
     final Matrix4 matrix = _transformationController.value.clone();
-    matrix.multiply(Matrix4.diagonal3Values(1.25, 1.25, 1.0));
+    matrix.multiply(Matrix4.diagonal3Values(1.25, 1.25, 1.25));
     setState(() {
       _transformationController.value = matrix;
     });
@@ -71,10 +83,32 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   void _zoomOut() {
     final Matrix4 matrix = _transformationController.value.clone();
-    matrix.multiply(Matrix4.diagonal3Values(0.8, 0.8, 1.0));
+    matrix.multiply(Matrix4.diagonal3Values(0.8, 0.8, 0.8));
     setState(() {
       _transformationController.value = matrix;
     });
+  }
+
+  void _toggleToolMode() {
+    setState(() {
+      _isPenMode = !_isPenMode;
+    });
+  }
+
+  void _undoStroke() {
+    if (_strokes.isNotEmpty) {
+      setState(() {
+        _strokes.removeLast();
+      });
+    }
+  }
+
+  void _clearCanvas() {
+    if (_strokes.isNotEmpty) {
+      setState(() {
+        _strokes.clear();
+      });
+    }
   }
 
   @override
@@ -84,6 +118,24 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       appBar: AppBar(
         title: Text(widget.title, key: const Key('editor_title')),
         actions: [
+          IconButton(
+            key: const Key('tool_mode_button'),
+            icon: Icon(_isPenMode ? Icons.edit : Icons.pan_tool),
+            tooltip: _isPenMode ? 'Switch to Pan Mode' : 'Switch to Pen Mode',
+            onPressed: _toggleToolMode,
+          ),
+          IconButton(
+            key: const Key('undo_stroke_button'),
+            icon: const Icon(Icons.undo),
+            tooltip: 'Undo Stroke',
+            onPressed: _strokes.isEmpty ? null : _undoStroke,
+          ),
+          IconButton(
+            key: const Key('clear_canvas_button'),
+            icon: const Icon(Icons.delete_sweep),
+            tooltip: 'Clear Canvas',
+            onPressed: _strokes.isEmpty ? null : _clearCanvas,
+          ),
           IconButton(
             key: const Key('paper_settings_button'),
             icon: const Icon(Icons.layers_outlined),
@@ -99,6 +151,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             child: InteractiveViewer(
               key: const Key('note_interactive_viewer'),
               transformationController: _transformationController,
+              panEnabled: !_isPenMode,
+              scaleEnabled: true,
+              constrained: false,
               minScale: 0.2,
               maxScale: 5.0,
               boundaryMargin: const EdgeInsets.all(800),
@@ -108,6 +163,18 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                   child: PaperCanvasWidget(
                     key: const Key('paper_canvas'),
                     template: _paperTemplate,
+                    child: HandwritingCanvasWidget(
+                      key: const Key('handwriting_canvas'),
+                      strokes: _strokes,
+                      isDrawingMode: _isPenMode,
+                      currentColor: _penColor,
+                      currentStrokeWidth: _penWidth,
+                      onStrokesChanged: (newStrokes) {
+                        setState(() {
+                          _strokes = newStrokes;
+                        });
+                      },
+                    ),
                   ),
                 ),
               ),
