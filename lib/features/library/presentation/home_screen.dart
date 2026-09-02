@@ -51,10 +51,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onOpenNote(NoteModel note) async {
-    final result = await Navigator.of(context).pushNamed(
-      AppRoutes.editor,
-      arguments: note,
-    );
+    final result = await Navigator.of(context)
+        .pushNamed(AppRoutes.editor, arguments: note);
     if (result != null && result is Map<String, dynamic>) {
       final updatedTitle = result['title'] as String?;
       if (updatedTitle != null) {
@@ -146,53 +144,53 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _repository.notes.isEmpty
           ? EmptyLibraryView(onCreateNote: _onCreateNote)
           : filteredNotes.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: AppSpacing.paddingLg,
-                    child: Text(
-                      'No notes found matching "$_searchQuery"',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ),
-                )
-              : _isGridView
-                  ? GridView.builder(
-                      padding: AppSpacing.paddingLg,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.8,
-                        crossAxisSpacing: AppSpacing.md,
-                        mainAxisSpacing: AppSpacing.md,
-                      ),
-                      itemCount: filteredNotes.length,
-                      itemBuilder: (context, index) {
-                        final note = filteredNotes[index];
-                        return NoteCard(
-                          key: Key('note_card_${note.id}'),
-                          note: note,
-                          isGrid: true,
-                          onTap: () => _onOpenNote(note),
-                          onRename: () => _onRenameNote(note),
-                          onDelete: () => _onDeleteNote(note),
-                        );
-                      },
-                    )
-                  : ListView.separated(
-                      padding: AppSpacing.paddingLg,
-                      itemCount: filteredNotes.length,
-                      separatorBuilder: (context, index) => AppSpacing.gapMd,
-                      itemBuilder: (context, index) {
-                        final note = filteredNotes[index];
-                        return NoteCard(
-                          key: Key('note_card_${note.id}'),
-                          note: note,
-                          isGrid: false,
-                          onTap: () => _onOpenNote(note),
-                          onRename: () => _onRenameNote(note),
-                          onDelete: () => _onDeleteNote(note),
-                        );
-                      },
-                    ),
+          ? Center(
+              child: Padding(
+                padding: AppSpacing.paddingLg,
+                child: Text(
+                  'No notes found matching "$_searchQuery"',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ),
+            )
+          : _isGridView
+          ? GridView.builder(
+              padding: AppSpacing.paddingLg,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.8,
+                crossAxisSpacing: AppSpacing.md,
+                mainAxisSpacing: AppSpacing.md,
+              ),
+              itemCount: filteredNotes.length,
+              itemBuilder: (context, index) {
+                final note = filteredNotes[index];
+                return NoteCard(
+                  key: Key('note_card_${note.id}'),
+                  note: note,
+                  isGrid: true,
+                  onTap: () => _onOpenNote(note),
+                  onRename: () => _onRenameNote(note),
+                  onDelete: () => _onDeleteNote(note),
+                );
+              },
+            )
+          : ListView.separated(
+              padding: AppSpacing.paddingLg,
+              itemCount: filteredNotes.length,
+              separatorBuilder: (context, index) => AppSpacing.gapMd,
+              itemBuilder: (context, index) {
+                final note = filteredNotes[index];
+                return NoteCard(
+                  key: Key('note_card_${note.id}'),
+                  note: note,
+                  isGrid: false,
+                  onTap: () => _onOpenNote(note),
+                  onRename: () => _onRenameNote(note),
+                  onDelete: () => _onDeleteNote(note),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         key: const Key('create_note_fab'),
         onPressed: _onCreateNote,
