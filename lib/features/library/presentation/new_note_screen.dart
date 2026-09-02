@@ -39,11 +39,8 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
   void _submit() {
     final title = _titleController.text.trim();
     final noteTitle = title.isEmpty ? 'Untitled Note' : title;
-    Navigator.of(context).pop({
-      'id': _existingNote?.id,
-      'title': noteTitle,
-      'date': 'Today',
-    });
+    Navigator.of(context)
+        .pop({'id': _existingNote?.id, 'title': noteTitle, 'date': 'Today'});
   }
 
   @override
@@ -85,9 +82,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(AppSpacing.md),
-                  border: Border.all(
-                    color: Theme.of(context).dividerColor,
-                  ),
+                  border: Border.all(color: Theme.of(context).dividerColor),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
