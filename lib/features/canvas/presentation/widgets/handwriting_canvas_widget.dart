@@ -24,7 +24,8 @@ class HandwritingCanvasWidget extends StatefulWidget {
   });
 
   @override
-  State<HandwritingCanvasWidget> createState() => _HandwritingCanvasWidgetState();
+  State<HandwritingCanvasWidget> createState() =>
+      _HandwritingCanvasWidgetState();
 }
 
 class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
@@ -122,7 +123,9 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
   Widget build(BuildContext context) {
     return Listener(
       key: const Key('handwriting_touch_listener'),
-      behavior: widget.isDrawingMode ? HitTestBehavior.opaque : HitTestBehavior.deferToChild,
+      behavior: widget.isDrawingMode
+          ? HitTestBehavior.opaque
+          : HitTestBehavior.deferToChild,
       onPointerDown: _onPointerDown,
       onPointerMove: _onPointerMove,
       onPointerUp: _onPointerUp,
