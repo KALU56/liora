@@ -37,7 +37,9 @@ class NoteRepository {
   bool renameNote(String id, String newTitle) {
     final index = _notes.indexWhere((n) => n.id == id);
     if (index != -1) {
-      final cleanTitle = newTitle.trim().isEmpty ? 'Untitled Note' : newTitle.trim();
+      final cleanTitle = newTitle.trim().isEmpty
+          ? 'Untitled Note'
+          : newTitle.trim();
       _notes[index] = _notes[index].copyWith(
         title: cleanTitle,
         modifiedDate: DateTime.now(),
