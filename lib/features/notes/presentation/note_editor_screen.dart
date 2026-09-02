@@ -75,7 +75,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   void _zoomIn() {
     final Matrix4 matrix = _transformationController.value.clone();
-    matrix.multiply(Matrix4.diagonal3Values(1.25, 1.25, 1.0));
+    matrix.multiply(Matrix4.diagonal3Values(1.25, 1.25, 1.25));
     setState(() {
       _transformationController.value = matrix;
     });
@@ -83,7 +83,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   void _zoomOut() {
     final Matrix4 matrix = _transformationController.value.clone();
-    matrix.multiply(Matrix4.diagonal3Values(0.8, 0.8, 1.0));
+    matrix.multiply(Matrix4.diagonal3Values(0.8, 0.8, 0.8));
     setState(() {
       _transformationController.value = matrix;
     });
@@ -153,6 +153,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               transformationController: _transformationController,
               panEnabled: !_isPenMode,
               scaleEnabled: true,
+              constrained: false,
               minScale: 0.2,
               maxScale: 5.0,
               boundaryMargin: const EdgeInsets.all(800),
