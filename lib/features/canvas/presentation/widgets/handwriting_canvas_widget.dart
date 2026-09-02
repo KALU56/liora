@@ -30,6 +30,22 @@ class HandwritingCanvasWidget extends StatefulWidget {
 class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
   Stroke? _activeStroke;
   int _strokeCounter = 0;
+  late List<Stroke> _internalStrokes;
+
+  @override
+  void initState() {
+    super.initState();
+    _internalStrokes = List<Stroke>.from(widget.strokes);
+  }
+
+  @override
+  void didUpdateWidget(HandwritingCanvasWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.strokes != oldWidget.strokes ||
+        widget.strokes.length != _internalStrokes.length) {
+      _internalStrokes = List<Stroke>.from(widget.strokes);
+    }
+  }
 
   void _onPointerDown(PointerDownEvent event) {
     if (!widget.isDrawingMode) return;
@@ -79,13 +95,13 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
       isComplete: true,
     );
 
-    final updatedStrokes = List<Stroke>.from(widget.strokes)..add(completedStroke);
+    _internalStrokes.add(completedStroke);
 
     setState(() {
       _activeStroke = null;
     });
 
-    widget.onStrokesChanged?.call(updatedStrokes);
+    widget.onStrokesChanged?.call(List<Stroke>.from(_internalStrokes));
   }
 
   void _onPointerCancel(PointerCancelEvent event) {
@@ -93,8 +109,8 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
 
     if (_activeStroke!.points.isNotEmpty) {
       final completedStroke = _activeStroke!.copyWith(isComplete: true);
-      final updatedStrokes = List<Stroke>.from(widget.strokes)..add(completedStroke);
-      widget.onStrokesChanged?.call(updatedStrokes);
+      _internalStrokes.add(completedStroke);
+      widget.onStrokesChanged?.call(List<Stroke>.from(_internalStrokes));
     }
 
     setState(() {
@@ -119,7 +135,7 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
             child: CustomPaint(
               key: const Key('stroke_canvas_paint'),
               painter: StrokePainter(
-                strokes: widget.strokes,
+                strokes: _internalStrokes,
                 activeStroke: _activeStroke,
               ),
             ),
