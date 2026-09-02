@@ -7,10 +7,7 @@ class StrokePainter extends CustomPainter {
   final List<Stroke> strokes;
   final Stroke? activeStroke;
 
-  const StrokePainter({
-    required this.strokes,
-    this.activeStroke,
-  });
+  const StrokePainter({required this.strokes, this.activeStroke});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -39,6 +36,7 @@ class StrokePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant StrokePainter oldDelegate) {
-    return oldDelegate.strokes != strokes || oldDelegate.activeStroke != activeStroke;
+    return oldDelegate.strokes != strokes ||
+        oldDelegate.activeStroke != activeStroke;
   }
 }
