@@ -4,7 +4,9 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../canvas/domain/models/stroke.dart';
+import '../../canvas/domain/models/writing_tool.dart';
 import '../../canvas/presentation/widgets/handwriting_canvas_widget.dart';
+import '../../canvas/presentation/widgets/writing_tools_toolbar.dart';
 import '../../notes/domain/models/note_model.dart';
 import '../../paper/domain/models/paper_template.dart';
 import '../../paper/presentation/widgets/paper_canvas_widget.dart';
@@ -27,8 +29,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
       TransformationController();
   List<Stroke> _strokes = [];
   bool _isPenMode = true;
-  final Color _penColor = Colors.black;
-  final double _penWidth = 3.0;
+  ToolConfig _toolConfig = ToolConfig.defaultPen;
 
   @override
   void didChangeDependencies() {
@@ -178,6 +179,16 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               },
             ),
             AppSpacing.gapMd,
+            if (_isPenMode)
+              WritingToolsToolbar(
+                activeConfig: _toolConfig,
+                onConfigChanged: (newConfig) {
+                  setState(() {
+                    _toolConfig = newConfig;
+                  });
+                },
+              ),
+            AppSpacing.gapSm,
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(AppSpacing.md),
@@ -211,8 +222,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                                   key: const Key('handwriting_canvas'),
                                   strokes: _strokes,
                                   isDrawingMode: _isPenMode,
-                                  currentColor: _penColor,
-                                  currentStrokeWidth: _penWidth,
+                                  toolConfig: _toolConfig,
                                   onStrokesChanged: (newStrokes) {
                                     setState(() {
                                       _strokes = newStrokes;
