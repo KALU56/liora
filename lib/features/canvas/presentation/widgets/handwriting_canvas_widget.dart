@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../../domain/models/stroke.dart';
 import '../../domain/models/touch_point.dart';
+import '../../domain/models/writing_tool.dart';
+import '../../domain/services/eraser_service.dart';
 import 'stroke_painter.dart';
 
-/// Widget capturing touch/stylus gestures to draw and render handwriting strokes in real-time.
+/// Widget capturing touch/stylus gestures to draw, erase, and render handwriting strokes in real-time.
 class HandwritingCanvasWidget extends StatefulWidget {
   final List<Stroke> strokes;
   final ValueChanged<List<Stroke>>? onStrokesChanged;
   final bool isDrawingMode;
+  final ToolConfig toolConfig;
   final Color currentColor;
   final double currentStrokeWidth;
   final Widget? child;
@@ -18,6 +21,7 @@ class HandwritingCanvasWidget extends StatefulWidget {
     required this.strokes,
     this.onStrokesChanged,
     this.isDrawingMode = true,
+    this.toolConfig = const ToolConfig(),
     this.currentColor = Colors.black,
     this.currentStrokeWidth = 3.0,
     this.child,
@@ -30,6 +34,7 @@ class HandwritingCanvasWidget extends StatefulWidget {
 
 class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
   Stroke? _activeStroke;
+  Offset? _eraserPosition;
   int _strokeCounter = 0;
   late List<Stroke> _internalStrokes;
 
@@ -48,8 +53,26 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
     }
   }
 
+  ToolConfig get _effectiveConfig {
+    if (widget.toolConfig.toolType == WritingToolType.pen &&
+        (widget.currentColor != Colors.black || widget.currentStrokeWidth != 3.0)) {
+      return widget.toolConfig.copyWith(
+        color: widget.currentColor,
+        strokeWidth: widget.currentStrokeWidth,
+      );
+    }
+    return widget.toolConfig;
+  }
+
   void _onPointerDown(PointerDownEvent event) {
     if (!widget.isDrawingMode) return;
+
+    final config = _effectiveConfig;
+
+    if (config.toolType == WritingToolType.eraser) {
+      _handleEraserTouch(event.localPosition);
+      return;
+    }
 
     _strokeCounter++;
     final newPoint = TouchPoint(
@@ -62,14 +85,25 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
       _activeStroke = Stroke(
         id: '${DateTime.now().microsecondsSinceEpoch}_$_strokeCounter',
         points: [newPoint],
-        color: widget.currentColor,
-        strokeWidth: widget.currentStrokeWidth,
+        color: config.color,
+        strokeWidth: config.strokeWidth,
+        toolType: config.toolType,
+        opacity: config.opacity,
       );
     });
   }
 
   void _onPointerMove(PointerMoveEvent event) {
-    if (!widget.isDrawingMode || _activeStroke == null) return;
+    if (!widget.isDrawingMode) return;
+
+    final config = _effectiveConfig;
+
+    if (config.toolType == WritingToolType.eraser) {
+      _handleEraserTouch(event.localPosition);
+      return;
+    }
+
+    if (_activeStroke == null) return;
 
     final newPoint = TouchPoint(
       offset: event.localPosition,
@@ -83,7 +117,18 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
   }
 
   void _onPointerUp(PointerUpEvent event) {
-    if (!widget.isDrawingMode || _activeStroke == null) return;
+    if (!widget.isDrawingMode) return;
+
+    final config = _effectiveConfig;
+
+    if (config.toolType == WritingToolType.eraser) {
+      setState(() {
+        _eraserPosition = null;
+      });
+      return;
+    }
+
+    if (_activeStroke == null) return;
 
     final finalPoint = TouchPoint(
       offset: event.localPosition,
@@ -106,7 +151,18 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
   }
 
   void _onPointerCancel(PointerCancelEvent event) {
-    if (!widget.isDrawingMode || _activeStroke == null) return;
+    if (!widget.isDrawingMode) return;
+
+    final config = _effectiveConfig;
+
+    if (config.toolType == WritingToolType.eraser) {
+      setState(() {
+        _eraserPosition = null;
+      });
+      return;
+    }
+
+    if (_activeStroke == null) return;
 
     if (_activeStroke!.points.isNotEmpty) {
       final completedStroke = _activeStroke!.copyWith(isComplete: true);
@@ -119,8 +175,30 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
     });
   }
 
+  void _handleEraserTouch(Offset localPosition) {
+    final radius = _effectiveConfig.eraserSize.radius;
+    final updatedStrokes = EraserService.eraseStrokesAtPoint(
+      _internalStrokes,
+      localPosition,
+      radius,
+    );
+
+    final strokesWereRemoved = updatedStrokes.length != _internalStrokes.length;
+    _internalStrokes = updatedStrokes;
+
+    setState(() {
+      _eraserPosition = localPosition;
+    });
+
+    if (strokesWereRemoved) {
+      widget.onStrokesChanged?.call(List<Stroke>.from(_internalStrokes));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final radius = _effectiveConfig.eraserSize.radius;
+
     return Listener(
       key: const Key('handwriting_touch_listener'),
       behavior: widget.isDrawingMode
@@ -140,6 +218,8 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
               painter: StrokePainter(
                 strokes: _internalStrokes,
                 activeStroke: _activeStroke,
+                eraserPosition: _eraserPosition,
+                eraserRadius: radius,
               ),
             ),
           ),

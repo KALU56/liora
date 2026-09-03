@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../../canvas/domain/models/stroke.dart';
+import '../../canvas/domain/models/writing_tool.dart';
 import '../../canvas/presentation/widgets/handwriting_canvas_widget.dart';
+import '../../canvas/presentation/widgets/writing_tools_toolbar.dart';
 import '../../paper/domain/models/paper_template.dart';
 import '../../paper/presentation/widgets/paper_canvas_widget.dart';
 import '../../paper/presentation/widgets/paper_customization_sheet.dart';
 
 /// Screen representing the notebook canvas editor.
 /// Supports InteractiveViewer panning/zooming, real-time Paper Template customization,
-/// and smooth handwriting stroke drawing.
+/// smooth handwriting stroke drawing, and Digital Writing Tools (Pen, Pencil, Highlighter, Eraser).
 class NoteEditorScreen extends StatefulWidget {
   final String title;
   final PaperTemplate initialTemplate;
@@ -31,8 +33,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       TransformationController();
   List<Stroke> _strokes = [];
   bool _isPenMode = true;
-  final Color _penColor = Colors.black;
-  final double _penWidth = 3.0;
+  ToolConfig _toolConfig = ToolConfig.defaultPen;
 
   @override
   void initState() {
@@ -167,8 +168,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                       key: const Key('handwriting_canvas'),
                       strokes: _strokes,
                       isDrawingMode: _isPenMode,
-                      currentColor: _penColor,
-                      currentStrokeWidth: _penWidth,
+                      toolConfig: _toolConfig,
                       onStrokesChanged: (newStrokes) {
                         setState(() {
                           _strokes = newStrokes;
@@ -180,6 +180,24 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               ),
             ),
           ),
+
+          // Digital Writing Tools Toolbar (Top Overlay)
+          if (_isPenMode)
+            Positioned(
+              top: 12.0,
+              left: 12.0,
+              right: 12.0,
+              child: Center(
+                child: WritingToolsToolbar(
+                  activeConfig: _toolConfig,
+                  onConfigChanged: (newConfig) {
+                    setState(() {
+                      _toolConfig = newConfig;
+                    });
+                  },
+                ),
+              ),
+            ),
 
           // Floating Viewport Control Overlay (Zoom In, Zoom Out, Reset Zoom)
           Positioned(
