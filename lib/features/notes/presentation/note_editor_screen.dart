@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../canvas/domain/models/canvas_action.dart';
 import '../../canvas/domain/models/stroke.dart';
 import '../../canvas/domain/models/writing_tool.dart';
+import '../../canvas/domain/services/canvas_history_manager.dart';
 import '../../canvas/presentation/widgets/handwriting_canvas_widget.dart';
 import '../../canvas/presentation/widgets/writing_tools_toolbar.dart';
 import '../../paper/domain/models/paper_template.dart';
@@ -10,7 +12,7 @@ import '../../paper/presentation/widgets/paper_customization_sheet.dart';
 
 /// Screen representing the notebook canvas editor.
 /// Supports InteractiveViewer panning/zooming, real-time Paper Template customization,
-/// smooth handwriting stroke drawing, and Digital Writing Tools (Pen, Pencil, Highlighter, Eraser).
+/// smooth handwriting stroke drawing, Digital Writing Tools, and multi-step Undo/Redo history.
 class NoteEditorScreen extends StatefulWidget {
   final String title;
   final PaperTemplate initialTemplate;
@@ -31,6 +33,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   late PaperTemplate _paperTemplate;
   final TransformationController _transformationController =
       TransformationController();
+  final CanvasHistoryManager _historyManager = CanvasHistoryManager();
   List<Stroke> _strokes = [];
   bool _isPenMode = true;
   ToolConfig _toolConfig = ToolConfig.defaultPen;
@@ -97,15 +100,24 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   void _undoStroke() {
-    if (_strokes.isNotEmpty) {
+    if (_historyManager.canUndo) {
       setState(() {
-        _strokes.removeLast();
+        _strokes = _historyManager.undo(_strokes);
+      });
+    }
+  }
+
+  void _redoStroke() {
+    if (_historyManager.canRedo) {
+      setState(() {
+        _strokes = _historyManager.redo(_strokes);
       });
     }
   }
 
   void _clearCanvas() {
     if (_strokes.isNotEmpty) {
+      _historyManager.recordAction(ClearCanvasAction(List.from(_strokes)));
       setState(() {
         _strokes.clear();
       });
@@ -128,8 +140,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
           IconButton(
             key: const Key('undo_stroke_button'),
             icon: const Icon(Icons.undo),
-            tooltip: 'Undo Stroke',
-            onPressed: _strokes.isEmpty ? null : _undoStroke,
+            tooltip: 'Undo Action',
+            onPressed: _historyManager.canUndo ? _undoStroke : null,
+          ),
+          IconButton(
+            key: const Key('redo_stroke_button'),
+            icon: const Icon(Icons.redo),
+            tooltip: 'Redo Action',
+            onPressed: _historyManager.canRedo ? _redoStroke : null,
           ),
           IconButton(
             key: const Key('clear_canvas_button'),
@@ -172,6 +190,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                       onStrokesChanged: (newStrokes) {
                         setState(() {
                           _strokes = newStrokes;
+                        });
+                      },
+                      onActionRecorded: (action) {
+                        setState(() {
+                          _historyManager.recordAction(action);
                         });
                       },
                     ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../domain/models/canvas_action.dart';
 import '../../domain/models/stroke.dart';
 import '../../domain/models/touch_point.dart';
 import '../../domain/models/writing_tool.dart';
@@ -10,6 +11,7 @@ import 'stroke_painter.dart';
 class HandwritingCanvasWidget extends StatefulWidget {
   final List<Stroke> strokes;
   final ValueChanged<List<Stroke>>? onStrokesChanged;
+  final ValueChanged<CanvasAction>? onActionRecorded;
   final bool isDrawingMode;
   final ToolConfig toolConfig;
   final Color currentColor;
@@ -20,6 +22,7 @@ class HandwritingCanvasWidget extends StatefulWidget {
     super.key,
     required this.strokes,
     this.onStrokesChanged,
+    this.onActionRecorded,
     this.isDrawingMode = true,
     this.toolConfig = const ToolConfig(),
     this.currentColor = Colors.black,
@@ -37,6 +40,7 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
   Offset? _eraserPosition;
   int _strokeCounter = 0;
   late List<Stroke> _internalStrokes;
+  final List<Stroke> _currentDragErasedStrokes = [];
 
   @override
   void initState() {
@@ -71,6 +75,7 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
     final config = _effectiveConfig;
 
     if (config.toolType == WritingToolType.eraser) {
+      _currentDragErasedStrokes.clear();
       _handleEraserTouch(event.localPosition);
       return;
     }
@@ -123,6 +128,12 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
     final config = _effectiveConfig;
 
     if (config.toolType == WritingToolType.eraser) {
+      if (_currentDragErasedStrokes.isNotEmpty) {
+        widget.onActionRecorded?.call(
+          EraseStrokesAction(List<Stroke>.from(_currentDragErasedStrokes)),
+        );
+        _currentDragErasedStrokes.clear();
+      }
       setState(() {
         _eraserPosition = null;
       });
@@ -149,6 +160,7 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
     });
 
     widget.onStrokesChanged?.call(List<Stroke>.from(_internalStrokes));
+    widget.onActionRecorded?.call(AddStrokeAction(completedStroke));
   }
 
   void _onPointerCancel(PointerCancelEvent event) {
@@ -157,6 +169,12 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
     final config = _effectiveConfig;
 
     if (config.toolType == WritingToolType.eraser) {
+      if (_currentDragErasedStrokes.isNotEmpty) {
+        widget.onActionRecorded?.call(
+          EraseStrokesAction(List<Stroke>.from(_currentDragErasedStrokes)),
+        );
+        _currentDragErasedStrokes.clear();
+      }
       setState(() {
         _eraserPosition = null;
       });
@@ -169,6 +187,7 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
       final completedStroke = _activeStroke!.copyWith(isComplete: true);
       _internalStrokes.add(completedStroke);
       widget.onStrokesChanged?.call(List<Stroke>.from(_internalStrokes));
+      widget.onActionRecorded?.call(AddStrokeAction(completedStroke));
     }
 
     setState(() {
@@ -183,6 +202,14 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
       localPosition,
       radius,
     );
+
+    final removedStrokes = _internalStrokes
+        .where((s) => !updatedStrokes.any((u) => u.id == s.id))
+        .toList();
+
+    if (removedStrokes.isNotEmpty) {
+      _currentDragErasedStrokes.addAll(removedStrokes);
+    }
 
     final strokesWereRemoved = updatedStrokes.length != _internalStrokes.length;
     _internalStrokes = updatedStrokes;
