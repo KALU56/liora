@@ -36,7 +36,9 @@ class EraserService {
     double eraserRadius,
   ) {
     return strokes
-        .where((stroke) => !isStrokeIntersected(stroke, eraserCenter, eraserRadius))
+        .where(
+          (stroke) => !isStrokeIntersected(stroke, eraserCenter, eraserRadius),
+        )
         .toList();
   }
 
@@ -49,10 +51,11 @@ class EraserService {
     final double l2 = (segB - segA).distanceSquared;
     if (l2 == 0) return (point - segA).distance <= maxDist;
 
-    final double t = (((point.dx - segA.dx) * (segB.dx - segA.dx) +
-                (point.dy - segA.dy) * (segB.dy - segA.dy)) /
-            l2)
-        .clamp(0.0, 1.0);
+    final double t =
+        (((point.dx - segA.dx) * (segB.dx - segA.dx) +
+                    (point.dy - segA.dy) * (segB.dy - segA.dy)) /
+                l2)
+            .clamp(0.0, 1.0);
 
     final Offset projection = Offset(
       segA.dx + t * (segB.dx - segA.dx),

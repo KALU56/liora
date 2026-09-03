@@ -55,7 +55,8 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
 
   ToolConfig get _effectiveConfig {
     if (widget.toolConfig.toolType == WritingToolType.pen &&
-        (widget.currentColor != Colors.black || widget.currentStrokeWidth != 3.0)) {
+        (widget.currentColor != Colors.black ||
+            widget.currentStrokeWidth != 3.0)) {
       return widget.toolConfig.copyWith(
         color: widget.currentColor,
         strokeWidth: widget.currentStrokeWidth,

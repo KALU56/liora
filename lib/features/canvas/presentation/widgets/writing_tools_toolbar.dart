@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/writing_tool.dart';
+import '../../domain/models/writing_tool.dart';
 
 class WritingToolsToolbar extends StatelessWidget {
   final ToolConfig activeConfig;
@@ -58,9 +58,7 @@ class WritingToolsToolbar extends StatelessWidget {
         );
         break;
       case WritingToolType.eraser:
-        newConfig = activeConfig.copyWith(
-          toolType: WritingToolType.eraser,
-        );
+        newConfig = activeConfig.copyWith(toolType: WritingToolType.eraser);
         break;
     }
     onConfigChanged(newConfig);
@@ -144,7 +142,9 @@ class WritingToolsToolbar extends StatelessWidget {
         icon: Icon(icon),
         color: isSelected ? Colors.blue : Colors.grey[700],
         style: isSelected
-            ? IconButton.styleFrom(backgroundColor: Colors.blue.withOpacity(0.15))
+            ? IconButton.styleFrom(
+                backgroundColor: Colors.blue.withValues(alpha: 0.15),
+              )
             : null,
         onPressed: () => _selectTool(toolType),
       ),
@@ -165,7 +165,7 @@ class WritingToolsToolbar extends StatelessWidget {
       children: colors.map((item) {
         final color = item.$1;
         final keyStr = item.$2;
-        final isSelected = activeConfig.color.value == color.value;
+        final isSelected = activeConfig.color.toARGB32() == color.toARGB32();
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2.0),
@@ -240,17 +240,21 @@ class WritingToolsToolbar extends StatelessWidget {
       children: [
         TextButton(
           key: const Key('preset_fine_pen'),
-          onPressed: () => _applyPreset(ToolConfig.defaultPen.copyWith(strokeWidth: 1.5)),
+          onPressed: () =>
+              _applyPreset(ToolConfig.defaultPen.copyWith(strokeWidth: 1.5)),
           child: const Text('Fine Pen', style: TextStyle(fontSize: 12)),
         ),
         TextButton(
           key: const Key('preset_marker'),
-          onPressed: () => _applyPreset(ToolConfig.defaultPen.copyWith(strokeWidth: 6.0)),
+          onPressed: () =>
+              _applyPreset(ToolConfig.defaultPen.copyWith(strokeWidth: 6.0)),
           child: const Text('Marker', style: TextStyle(fontSize: 12)),
         ),
         TextButton(
           key: const Key('preset_chisel_highlighter'),
-          onPressed: () => _applyPreset(ToolConfig.defaultHighlighter.copyWith(strokeWidth: 20.0)),
+          onPressed: () => _applyPreset(
+            ToolConfig.defaultHighlighter.copyWith(strokeWidth: 20.0),
+          ),
           child: const Text('Chisel', style: TextStyle(fontSize: 12)),
         ),
       ],
@@ -267,7 +271,9 @@ class WritingToolsToolbar extends StatelessWidget {
           selected: activeConfig.eraserSize == EraserSize.small,
           onSelected: (selected) {
             if (selected) {
-              onConfigChanged(activeConfig.copyWith(eraserSize: EraserSize.small));
+              onConfigChanged(
+                activeConfig.copyWith(eraserSize: EraserSize.small),
+              );
             }
           },
         ),
@@ -278,7 +284,9 @@ class WritingToolsToolbar extends StatelessWidget {
           selected: activeConfig.eraserSize == EraserSize.large,
           onSelected: (selected) {
             if (selected) {
-              onConfigChanged(activeConfig.copyWith(eraserSize: EraserSize.large));
+              onConfigChanged(
+                activeConfig.copyWith(eraserSize: EraserSize.large),
+              );
             }
           },
         ),
