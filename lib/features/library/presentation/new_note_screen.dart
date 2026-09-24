@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/dependencies/app_dependencies.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -7,11 +8,11 @@ import '../../canvas/application/canvas_use_cases.dart';
 import '../../canvas/domain/models/writing_tool.dart';
 import '../../canvas/presentation/widgets/handwriting_canvas_widget.dart';
 import '../../canvas/presentation/widgets/writing_tools_toolbar.dart';
-import '../../notes/application/notes_dependencies.dart';
 import '../../notes/application/notes_use_cases.dart';
 import '../../notes/domain/models/note_model.dart';
 import '../../notes/domain/models/note_page.dart';
 import '../../notes/domain/repositories/notes_repository.dart';
+import '../../paper/application/paper_use_cases.dart';
 import '../../paper/domain/models/paper_template.dart';
 import '../../paper/presentation/widgets/paper_canvas_widget.dart';
 import '../../paper/presentation/widgets/paper_customization_sheet.dart';
@@ -35,6 +36,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
   final Map<String, CanvasUseCases> _canvasByPage = {};
 
   late final NotesUseCases _notes;
+  late final PaperUseCases _paper;
   NoteModel? _existingNote;
   late List<NotePage> _pages;
   int _currentPageIndex = 0;
@@ -52,8 +54,9 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
     _notes =
         widget.useCases ??
         (widget.repository == null
-            ? appNotesUseCases
+            ? appDependencies.notes
             : NotesUseCases(widget.repository!));
+    _paper = appDependencies.paper;
     _pages = [_newPage()];
   }
 
@@ -117,7 +120,14 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
       context,
       initialTemplate: _currentPage.paperTemplate,
       onLiveUpdate: (newTemplate) {
-        _replaceCurrentPage(_currentPage.copyWith(paperTemplate: newTemplate));
+        _replaceCurrentPage(
+          _currentPage.copyWith(
+            paperTemplate: _paper.updateTemplate(
+              _currentPage.paperTemplate,
+              newTemplate,
+            ),
+          ),
+        );
       },
     );
 
@@ -352,6 +362,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                                   strokes: page.strokes,
                                   isDrawingMode: _isPenMode,
                                   toolConfig: page.toolConfig,
+                                  canvasUseCases: _canvas,
                                   onStrokesChanged: (newStrokes) {
                                     _replaceCurrentPage(
                                       _currentPage.copyWith(
