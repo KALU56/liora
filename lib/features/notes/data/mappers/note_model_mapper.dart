@@ -62,7 +62,9 @@ class NoteModelMapper {
       strokes: rawStrokes is List
           ? rawStrokes
                 .whereType<Map>()
-                .map((stroke) => strokeFromMap(Map<String, dynamic>.from(stroke)))
+                .map(
+                  (stroke) => strokeFromMap(Map<String, dynamic>.from(stroke)),
+                )
                 .toList()
           : const [],
       toolConfig: map['toolConfig'] is Map
@@ -173,7 +175,9 @@ class NoteModelMapper {
         (pattern) => pattern.name == map['pattern'],
         orElse: () => PaperPattern.blank,
       ),
-      backgroundColor: ArgbColor((map['backgroundColor'] as num?)?.toInt() ?? 0xFFFFFFFF),
+      backgroundColor: ArgbColor(
+        (map['backgroundColor'] as num?)?.toInt() ?? 0xFFFFFFFF,
+      ),
       orientation: PageOrientation.values.firstWhere(
         (orientation) => orientation.name == map['orientation'],
         orElse: () => PageOrientation.portrait,
