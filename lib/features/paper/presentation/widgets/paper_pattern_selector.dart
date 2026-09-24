@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/models/paper_template.dart';
+import 'paper_ui_metadata.dart';
 
 /// Segmented grid/list selector for paper pattern (Blank, Ruled, Grid, Dotted).
 class PaperPatternSelector extends StatelessWidget {
@@ -29,6 +30,7 @@ class PaperPatternSelector extends StatelessWidget {
         const SizedBox(height: 8.0),
         Row(
           children: PaperPattern.values.map((pattern) {
+            final metadata = patternMetadata(pattern);
             final isSelected = pattern == selectedPattern;
             return Expanded(
               child: Padding(
@@ -58,14 +60,14 @@ class PaperPatternSelector extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          pattern.icon,
+                          metadata.icon,
                           color: isSelected
                               ? Theme.of(context).primaryColor
                               : Colors.grey.shade700,
                         ),
                         const SizedBox(height: 4.0),
                         Text(
-                          pattern.displayName,
+                          metadata.label,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: isSelected
