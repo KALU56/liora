@@ -61,9 +61,8 @@ class StrokePainter extends CustomPainter {
 
   void _drawPenStroke(Canvas canvas, Path path, Stroke stroke) {
     final paint = Paint()
-      ..color = Color(stroke.color.value).withValues(
-        alpha: stroke.opacity.clamp(0.0, 1.0),
-      )
+      ..color = Color(stroke.color.value)
+          .withValues(alpha: stroke.opacity.clamp(0.0, 1.0))
       ..strokeWidth = stroke.strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -89,9 +88,8 @@ class StrokePainter extends CustomPainter {
 
     // Subtle texture pass
     final texturePaint = Paint()
-      ..color = Color(stroke.color.value).withValues(
-        alpha: (baseOpacity * 0.3).clamp(0.0, 1.0),
-      )
+      ..color = Color(stroke.color.value)
+          .withValues(alpha: (baseOpacity * 0.3).clamp(0.0, 1.0))
       ..strokeWidth = stroke.strokeWidth * 0.8
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
