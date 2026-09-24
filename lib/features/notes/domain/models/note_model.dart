@@ -43,5 +43,4 @@ class NoteModel {
       thumbnailPath: thumbnailPath ?? this.thumbnailPath,
     );
   }
-
 }
