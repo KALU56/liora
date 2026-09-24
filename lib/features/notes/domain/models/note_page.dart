@@ -32,5 +32,4 @@ class NotePage {
       toolConfig: toolConfig ?? this.toolConfig,
     );
   }
-
 }
