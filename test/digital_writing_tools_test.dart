@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:notability_clone/features/canvas/domain/models/argb_color.dart';
+import 'package:notability_clone/features/canvas/domain/models/point_2d.dart';
 import 'package:notability_clone/features/canvas/domain/models/stroke.dart';
 import 'package:notability_clone/features/canvas/domain/models/touch_point.dart';
 import 'package:notability_clone/features/canvas/domain/models/writing_tool.dart';
@@ -66,7 +68,7 @@ void main() {
           find.byType(HandwritingCanvasWidget),
         );
         expect(
-          canvasWidget.strokes.first.color.toARGB32(),
+          canvasWidget.strokes.first.color.value,
           equals(Colors.blue.toARGB32()),
         );
       },
@@ -219,10 +221,10 @@ void main() {
       (WidgetTester tester) async {
         const config = ToolConfig(
           toolType: WritingToolType.highlighter,
-          color: Color(0xFFFFEB3B),
+          color: ArgbColor(0xFFFFEB3B),
         );
         expect(
-          config.color.toARGB32(),
+          config.color.value,
           equals(const Color(0xFFFFEB3B).toARGB32()),
         );
       },
@@ -234,7 +236,7 @@ void main() {
         final stroke = Stroke(
           id: 'hl_1',
           toolType: WritingToolType.highlighter,
-          color: Colors.yellow,
+          color: const ArgbColor(0xFFFFFF00),
           opacity: 0.4,
           strokeWidth: 16.0,
         );
@@ -289,11 +291,11 @@ void main() {
           id: 's1',
           points: [
             TouchPoint(
-              offset: const Offset(100, 100),
+              position: const Point2D(100, 100),
               timestamp: DateTime.now(),
             ),
             TouchPoint(
-              offset: const Offset(120, 100),
+              position: const Point2D(120, 100),
               timestamp: DateTime.now(),
             ),
           ],
@@ -303,11 +305,11 @@ void main() {
           id: 's2',
           points: [
             TouchPoint(
-              offset: const Offset(300, 300),
+              position: const Point2D(300, 300),
               timestamp: DateTime.now(),
             ),
             TouchPoint(
-              offset: const Offset(320, 300),
+              position: const Point2D(320, 300),
               timestamp: DateTime.now(),
             ),
           ],
@@ -318,7 +320,7 @@ void main() {
         // Erase near stroke1 (Offset 110, 100)
         final remaining = EraserService.eraseStrokesAtPoint(
           initialStrokes,
-          const Offset(110, 100),
+          const Point2D(110, 100),
           16.0,
         );
 
@@ -370,7 +372,7 @@ void main() {
         final strokeKeep = Stroke(
           id: 'keep_me',
           points: [
-            TouchPoint(offset: const Offset(50, 50), timestamp: DateTime.now()),
+            TouchPoint(position: const Point2D(50, 50), timestamp: DateTime.now()),
           ],
         );
 
@@ -378,7 +380,7 @@ void main() {
           id: 'delete_me',
           points: [
             TouchPoint(
-              offset: const Offset(200, 200),
+              position: const Point2D(200, 200),
               timestamp: DateTime.now(),
             ),
           ],
@@ -386,7 +388,7 @@ void main() {
 
         final result = EraserService.eraseStrokesAtPoint(
           [strokeKeep, strokeDelete],
-          const Offset(200, 200),
+          const Point2D(200, 200),
           16.0,
         );
 
