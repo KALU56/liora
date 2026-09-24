@@ -21,10 +21,7 @@ class StrokePathBuilder {
       return path;
     }
 
-    path.moveTo(
-      stroke.points.first.position.x,
-      stroke.points.first.position.y,
-    );
+    path.moveTo(stroke.points.first.position.x, stroke.points.first.position.y);
 
     for (var index = 1; index < stroke.points.length - 1; index++) {
       final current = stroke.points[index].position;
@@ -33,18 +30,10 @@ class StrokePathBuilder {
         (current.x + next.x) / 2,
         (current.y + next.y) / 2,
       );
-      path.quadraticBezierTo(
-        current.x,
-        current.y,
-        midpoint.dx,
-        midpoint.dy,
-      );
+      path.quadraticBezierTo(current.x, current.y, midpoint.dx, midpoint.dy);
     }
 
-    path.lineTo(
-      stroke.points.last.position.x,
-      stroke.points.last.position.y,
-    );
+    path.lineTo(stroke.points.last.position.x, stroke.points.last.position.y);
     return path;
   }
 }
