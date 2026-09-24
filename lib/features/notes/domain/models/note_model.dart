@@ -44,39 +44,4 @@ class NoteModel {
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'title': title,
-      'pageCount': pageCount,
-      'pages': pages.map((page) => page.toMap()).toList(),
-      'modifiedDate': modifiedDate.toIso8601String(),
-      'createdDate': createdDate.toIso8601String(),
-      'thumbnailPath': thumbnailPath,
-    };
-  }
-
-  Map<String, dynamic> toJson() => toMap();
-
-  factory NoteModel.fromMap(Map<String, dynamic> map) {
-    return NoteModel(
-      id: map['id'] as String,
-      title: map['title'] as String,
-      pageCount: (map['pageCount'] as num?)?.toInt() ?? 1,
-      pages: map['pages'] is List
-          ? (map['pages'] as List)
-                .whereType<Map>()
-                .map(
-                  (page) => NotePage.fromMap(Map<String, dynamic>.from(page)),
-                )
-                .toList()
-          : const [],
-      modifiedDate: DateTime.parse(map['modifiedDate'] as String),
-      createdDate: DateTime.parse(map['createdDate'] as String),
-      thumbnailPath: map['thumbnailPath'] as String?,
-    );
-  }
-
-  factory NoteModel.fromJson(Map<String, dynamic> json) =>
-      NoteModel.fromMap(json);
 }
