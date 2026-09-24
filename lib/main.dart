@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'core/dependencies/app_dependencies.dart';
 import 'core/routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
-import 'features/notes/application/notes_dependencies.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeNotes();
+  await appDependencies.initialize();
   runApp(const PaperNoteApp());
 }
 
