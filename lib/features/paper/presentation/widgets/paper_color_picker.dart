@@ -31,10 +31,9 @@ class PaperColorPicker extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: PaperColorOption.presets.map((preset) {
-              final isSelected =
-                    selectedColor.toARGB32() == preset.color.value;
-                  final presetColor = Color(preset.color.value);
-                  final isDark = presetColor.computeLuminance() < 0.5;
+              final isSelected = selectedColor.toARGB32() == preset.color.value;
+              final presetColor = Color(preset.color.value);
+              final isDark = presetColor.computeLuminance() < 0.5;
 
               return Padding(
                 padding: const EdgeInsets.only(right: 8.0),
