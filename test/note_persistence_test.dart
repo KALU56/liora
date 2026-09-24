@@ -102,17 +102,11 @@ void main() {
       expect(restored.pageCount, 2);
       expect(restored.pages.map((page) => page.id), ['page-1', 'page-2']);
       expect(restored.pages[1].strokes.single.id, 'second-stroke');
-      expect(
-        restoredStroke.color.value,
-        const Color(0xAA3366FF).toARGB32(),
-      );
+      expect(restoredStroke.color.value, const Color(0xAA3366FF).toARGB32());
       expect(restoredStroke.strokeWidth, 7.25);
       expect(restoredStroke.opacity, 0.35);
       expect(restoredStroke.toolType, WritingToolType.highlighter);
-      expect(
-        restoredStroke.points.single.position,
-        const Point2D(12.5, 24.75),
-      );
+      expect(restoredStroke.points.single.position, const Point2D(12.5, 24.75));
       expect(restoredStroke.points.single.pressure, 0.6);
       expect(restoredStroke.points.single.timestamp, timestamp);
       expect(
