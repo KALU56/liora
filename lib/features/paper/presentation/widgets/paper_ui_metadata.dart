@@ -17,25 +17,25 @@ class PaperPatternMetadata {
 PaperPatternMetadata patternMetadata(PaperPattern pattern) {
   return switch (pattern) {
     PaperPattern.blank => const PaperPatternMetadata(
-        label: 'Blank',
-        description: 'Plain paper without guidelines',
-        icon: Icons.crop_din,
-      ),
+      label: 'Blank',
+      description: 'Plain paper without guidelines',
+      icon: Icons.crop_din,
+    ),
     PaperPattern.ruled => const PaperPatternMetadata(
-        label: 'Ruled',
-        description: 'Horizontal guidelines for handwriting',
-        icon: Icons.format_align_left,
-      ),
+      label: 'Ruled',
+      description: 'Horizontal guidelines for handwriting',
+      icon: Icons.format_align_left,
+    ),
     PaperPattern.grid => const PaperPatternMetadata(
-        label: 'Grid',
-        description: 'Square grid cells for alignment & math',
-        icon: Icons.grid_on,
-      ),
+      label: 'Grid',
+      description: 'Square grid cells for alignment & math',
+      icon: Icons.grid_on,
+    ),
     PaperPattern.dotted => const PaperPatternMetadata(
-        label: 'Dotted',
-        description: 'Evenly spaced dots for bullet journaling',
-        icon: Icons.grain,
-      ),
+      label: 'Dotted',
+      description: 'Evenly spaced dots for bullet journaling',
+      icon: Icons.grain,
+    ),
   };
 }
 
