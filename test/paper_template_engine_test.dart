@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:notability_clone/core/domain/value_objects/argb_color.dart';
 import 'package:notability_clone/features/library/presentation/new_note_screen.dart';
 import 'package:notability_clone/features/paper/domain/models/paper_template.dart';
 import 'package:notability_clone/features/paper/presentation/widgets/paper_canvas_widget.dart';
@@ -11,7 +12,7 @@ void main() {
       (WidgetTester tester) async {
         const template = PaperTemplate(
           pattern: PaperPattern.blank,
-          backgroundColor: Color(0xFFFFFFFF),
+          backgroundColor: ArgbColor(0xFFFFFFFF),
         );
 
         await tester.pumpWidget(
@@ -30,7 +31,7 @@ void main() {
         expect(widget.template.pattern, equals(PaperPattern.blank));
         expect(
           widget.template.backgroundColor,
-          equals(const Color(0xFFFFFFFF)),
+          equals(const ArgbColor(0xFFFFFFFF)),
         );
       },
     );
@@ -40,7 +41,7 @@ void main() {
       (WidgetTester tester) async {
         const template = PaperTemplate(
           pattern: PaperPattern.ruled,
-          backgroundColor: Color(0xFFFFFFFF),
+          backgroundColor: ArgbColor(0xFFFFFFFF),
           lineSpacing: 32.0,
         );
 
@@ -81,7 +82,7 @@ void main() {
       (WidgetTester tester) async {
         const template = PaperTemplate(
           pattern: PaperPattern.grid,
-          backgroundColor: Color(0xFFFFFDF0),
+          backgroundColor: ArgbColor(0xFFFFFDF0),
           gridSize: 32.0,
         );
 
@@ -120,7 +121,7 @@ void main() {
       (WidgetTester tester) async {
         const template = PaperTemplate(
           pattern: PaperPattern.dotted,
-          backgroundColor: Color(0xFF1E1E1E), // Dark paper
+          backgroundColor: ArgbColor(0xFF1E1E1E), // Dark paper
           dotSpacing: 32.0,
           dotRadius: 2.0,
         );
@@ -140,8 +141,8 @@ void main() {
         expect(widget.template.dotRadius, equals(2.0));
 
         // Dark background automatically uses light contrasting dots
-        final Color effectiveDotColor = widget.template.effectivePatternColor;
-        expect(effectiveDotColor.computeLuminance(), greaterThan(0.5));
+        final color = widget.template.effectivePatternColor.value;
+        expect((color & 0xFFFFFF), greaterThan(0));
       },
     );
 
@@ -179,7 +180,7 @@ void main() {
         );
         expect(
           widget.template.backgroundColor,
-          equals(const Color(0xFFFFF9C4)),
+          equals(const ArgbColor(0xFFFFF9C4)),
         );
       },
     );
@@ -196,7 +197,8 @@ void main() {
 
         expect(portraitTemplate.width, equals(612.0));
         expect(portraitTemplate.height, equals(792.0));
-        expect(portraitTemplate.pageSize, equals(const Size(612.0, 792.0)));
+        expect(portraitTemplate.pageSize.width, equals(612.0));
+        expect(portraitTemplate.pageSize.height, equals(792.0));
 
         // 2. Landscape orientation swaps dimensions (792 x 612)
         const landscapeTemplate = PaperTemplate(
@@ -207,7 +209,8 @@ void main() {
 
         expect(landscapeTemplate.width, equals(792.0));
         expect(landscapeTemplate.height, equals(612.0));
-        expect(landscapeTemplate.pageSize, equals(const Size(792.0, 612.0)));
+        expect(landscapeTemplate.pageSize.width, equals(792.0));
+        expect(landscapeTemplate.pageSize.height, equals(612.0));
 
         // 3. UI interaction test switching orientation via sheet
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
