@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:notability_clone/features/canvas/domain/models/canvas_action.dart';
+import 'package:notability_clone/features/canvas/domain/models/point_2d.dart';
 import 'package:notability_clone/features/canvas/domain/models/stroke.dart';
 import 'package:notability_clone/features/canvas/domain/models/touch_point.dart';
 import 'package:notability_clone/features/canvas/domain/services/canvas_history_manager.dart';
@@ -83,7 +84,7 @@ void main() {
           id: 's1',
           points: [
             TouchPoint(
-              offset: const Offset(100, 100),
+              position: const Point2D(100, 100),
               timestamp: DateTime.now(),
             ),
           ],
