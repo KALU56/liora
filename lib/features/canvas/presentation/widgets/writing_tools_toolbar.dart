@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../domain/models/argb_color.dart';
 import '../../domain/models/writing_tool.dart';
 
 class WritingToolsToolbar extends StatelessWidget {
@@ -165,14 +166,16 @@ class WritingToolsToolbar extends StatelessWidget {
       children: colors.map((item) {
         final color = item.$1;
         final keyStr = item.$2;
-        final isSelected = activeConfig.color.toARGB32() == color.toARGB32();
+        final isSelected = activeConfig.color.value == color.toARGB32();
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 2.0),
           child: GestureDetector(
             key: Key(keyStr),
             onTap: () {
-              onConfigChanged(activeConfig.copyWith(color: color));
+              onConfigChanged(
+                activeConfig.copyWith(color: ArgbColor(color.toARGB32())),
+              );
             },
             child: Container(
               width: 24,
