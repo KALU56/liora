@@ -223,10 +223,7 @@ void main() {
           toolType: WritingToolType.highlighter,
           color: ArgbColor(0xFFFFEB3B),
         );
-        expect(
-          config.color.value,
-          equals(const Color(0xFFFFEB3B).toARGB32()),
-        );
+        expect(config.color.value, equals(const Color(0xFFFFEB3B).toARGB32()));
       },
     );
 
@@ -372,7 +369,10 @@ void main() {
         final strokeKeep = Stroke(
           id: 'keep_me',
           points: [
-            TouchPoint(position: const Point2D(50, 50), timestamp: DateTime.now()),
+            TouchPoint(
+              position: const Point2D(50, 50),
+              timestamp: DateTime.now(),
+            ),
           ],
         );
 
