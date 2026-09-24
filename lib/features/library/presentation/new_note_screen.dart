@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
-import '../../canvas/domain/models/canvas_action.dart';
+import '../../canvas/application/canvas_use_cases.dart';
 import '../../canvas/domain/models/writing_tool.dart';
-import '../../canvas/domain/services/canvas_history_manager.dart';
 import '../../canvas/presentation/widgets/handwriting_canvas_widget.dart';
 import '../../canvas/presentation/widgets/writing_tools_toolbar.dart';
-import '../../notes/data/repositories/note_repository.dart';
+import '../../notes/application/notes_dependencies.dart';
+import '../../notes/application/notes_use_cases.dart';
 import '../../notes/domain/models/note_model.dart';
 import '../../notes/domain/models/note_page.dart';
+import '../../notes/domain/repositories/notes_repository.dart';
 import '../../paper/domain/models/paper_template.dart';
 import '../../paper/presentation/widgets/paper_canvas_widget.dart';
 import '../../paper/presentation/widgets/paper_customization_sheet.dart';
@@ -18,9 +19,10 @@ import '../../paper/presentation/widgets/paper_customization_sheet.dart';
 /// The note editor used for both a new note and an existing saved note.
 /// Each page owns its canvas data, paper template, and tool configuration.
 class NewNoteScreen extends StatefulWidget {
-  final NoteRepository? repository;
+  final NotesRepository? repository;
+  final NotesUseCases? useCases;
 
-  const NewNoteScreen({super.key, this.repository});
+  const NewNoteScreen({super.key, this.repository, this.useCases});
 
   @override
   State<NewNoteScreen> createState() => _NewNoteScreenState();
@@ -30,9 +32,9 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TransformationController _transformationController =
       TransformationController();
-  final Map<String, CanvasHistoryManager> _historyByPage = {};
+  final Map<String, CanvasUseCases> _canvasByPage = {};
 
-  late final NoteRepository _repository;
+  late final NotesUseCases _notes;
   NoteModel? _existingNote;
   late List<NotePage> _pages;
   int _currentPageIndex = 0;
@@ -41,13 +43,17 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
   bool _isPenMode = true;
 
   NotePage get _currentPage => _pages[_currentPageIndex];
-  CanvasHistoryManager get _historyManager =>
-      _historyByPage.putIfAbsent(_currentPage.id, CanvasHistoryManager.new);
+  CanvasUseCases get _canvas =>
+      _canvasByPage.putIfAbsent(_currentPage.id, CanvasUseCases.new);
 
   @override
   void initState() {
     super.initState();
-    _repository = widget.repository ?? appNoteRepository;
+    _notes =
+        widget.useCases ??
+        (widget.repository == null
+            ? appNotesUseCases
+            : NotesUseCases(widget.repository!));
     _pages = [_newPage()];
   }
 
@@ -101,8 +107,8 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
       title: title.isEmpty ? 'Untitled Note' : title,
       pages: _pages,
     );
-    if (_repository.updateNote(updated)) {
-      _existingNote = _repository.getNoteById(updated.id) ?? updated;
+    if (_notes.updateNote(updated)) {
+      _existingNote = _notes.getNoteById(updated.id) ?? updated;
     }
   }
 
@@ -151,29 +157,26 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
   }
 
   void _undoStroke() {
-    if (_historyManager.canUndo) {
+    if (_canvas.canUndo) {
       _replaceCurrentPage(
-        _currentPage.copyWith(
-          strokes: _historyManager.undo(_currentPage.strokes),
-        ),
+        _currentPage.copyWith(strokes: _canvas.undo(_currentPage.strokes)),
       );
     }
   }
 
   void _redoStroke() {
-    if (_historyManager.canRedo) {
+    if (_canvas.canRedo) {
       _replaceCurrentPage(
-        _currentPage.copyWith(
-          strokes: _historyManager.redo(_currentPage.strokes),
-        ),
+        _currentPage.copyWith(strokes: _canvas.redo(_currentPage.strokes)),
       );
     }
   }
 
   void _clearCanvas() {
     if (_currentPage.strokes.isNotEmpty) {
-      _historyManager.recordAction(ClearCanvasAction(_currentPage.strokes));
-      _replaceCurrentPage(_currentPage.copyWith(strokes: const []));
+      _replaceCurrentPage(
+        _currentPage.copyWith(strokes: _canvas.clear(_currentPage.strokes)),
+      );
     }
   }
 
@@ -229,13 +232,13 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
             key: const Key('undo_stroke_button'),
             icon: const Icon(Icons.undo),
             tooltip: 'Undo Action',
-            onPressed: _historyManager.canUndo ? _undoStroke : null,
+            onPressed: _canvas.canUndo ? _undoStroke : null,
           ),
           IconButton(
             key: const Key('redo_stroke_button'),
             icon: const Icon(Icons.redo),
             tooltip: 'Redo Action',
-            onPressed: _historyManager.canRedo ? _redoStroke : null,
+            onPressed: _canvas.canRedo ? _redoStroke : null,
           ),
           IconButton(
             key: const Key('clear_canvas_button'),
@@ -356,8 +359,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                                       ),
                                     );
                                   },
-                                  onActionRecorded:
-                                      _historyManager.recordAction,
+                                  onActionRecorded: _canvas.recordAction,
                                 ),
                               ),
                             ),

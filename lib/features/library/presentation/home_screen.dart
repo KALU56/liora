@@ -3,27 +3,28 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../notes/data/repositories/note_repository.dart';
+import '../../notes/application/notes_dependencies.dart';
+import '../../notes/application/notes_use_cases.dart';
 import '../../notes/domain/models/note_model.dart';
 import '../../notes/domain/models/note_page.dart';
+import '../../notes/domain/repositories/notes_repository.dart';
 import '../../notes/presentation/widgets/delete_note_dialog.dart';
 import '../../notes/presentation/widgets/note_card.dart';
 import '../../notes/presentation/widgets/rename_note_dialog.dart';
 import 'widgets/empty_library_view.dart';
 
-final NoteRepository globalNoteRepository = appNoteRepository;
-
 class HomeScreen extends StatefulWidget {
-  final NoteRepository? repository;
+  final NotesRepository? repository;
+  final NotesUseCases? useCases;
 
-  const HomeScreen({super.key, this.repository});
+  const HomeScreen({super.key, this.repository, this.useCases});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final NoteRepository _repository;
+  late final NotesUseCases _notes;
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
   bool _isGridView = false;
@@ -32,7 +33,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _repository = widget.repository ?? globalNoteRepository;
+    _notes =
+        widget.useCases ??
+        (widget.repository == null
+            ? appNotesUseCases
+            : NotesUseCases(widget.repository!));
   }
 
   @override
@@ -46,10 +51,10 @@ class _HomeScreenState extends State<HomeScreen> {
     if (result != null && result is Map<String, dynamic>) {
       final title = result['title'] as String?;
       setState(() {
-        final note = _repository.createNote(title: title);
+        final note = _notes.createNote(title: title);
         final pages = result['pages'];
         if (pages is List<NotePage>) {
-          _repository.updateNote(note.copyWith(pages: pages));
+          _notes.updateNote(note.copyWith(pages: pages));
         }
       });
     }
@@ -63,8 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
       final pages = result['pages'];
       if (updatedTitle != null || pages is List<NotePage>) {
         setState(() {
-          final currentNote = _repository.getNoteById(note.id) ?? note;
-          _repository.updateNote(
+          final currentNote = _notes.getNoteById(note.id) ?? note;
+          _notes.updateNote(
             currentNote.copyWith(
               title: updatedTitle ?? currentNote.title,
               pages: pages is List<NotePage> ? pages : currentNote.pages,
@@ -82,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     if (newTitle != null) {
       setState(() {
-        _repository.renameNote(note.id, newTitle);
+        _notes.renameNote(note.id, newTitle);
       });
     }
   }
@@ -94,14 +99,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     if (confirmed == true) {
       setState(() {
-        _repository.deleteNote(note.id);
+        _notes.deleteNote(note.id);
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredNotes = _repository.searchNotes(_searchQuery);
+    final filteredNotes = _notes.searchNotes(_searchQuery);
 
     return Scaffold(
       appBar: AppBar(
@@ -153,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: _repository.notes.isEmpty
+      body: _notes.notes.isEmpty
           ? EmptyLibraryView(onCreateNote: _onCreateNote)
           : filteredNotes.isEmpty
           ? Center(

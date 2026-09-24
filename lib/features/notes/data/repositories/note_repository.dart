@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../../../canvas/domain/models/writing_tool.dart';
 import '../../domain/models/note_model.dart';
 import '../../domain/models/note_page.dart';
+import '../../domain/repositories/notes_repository.dart';
 import 'note_storage.dart';
 
 /// In-memory note collection with a serialized, device-backed snapshot.
@@ -11,7 +12,7 @@ import 'note_storage.dart';
 /// Mutations remain synchronous for the UI, while their snapshots are written
 /// in order in the background. This means a later edit cannot be overwritten
 /// by an earlier, slower storage write.
-class NoteRepository {
+class NoteRepository implements NotesRepository {
   NoteRepository({NoteStorage? storage})
     : _storage = storage ?? SharedPreferencesNoteStorage();
 
