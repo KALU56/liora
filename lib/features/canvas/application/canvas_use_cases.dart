@@ -1,4 +1,5 @@
 import '../domain/models/canvas_action.dart';
+import '../domain/models/point_2d.dart';
 import '../domain/models/stroke.dart';
 import '../domain/services/canvas_history_manager.dart';
 import '../domain/services/eraser_service.dart';
@@ -27,7 +28,7 @@ class CanvasUseCases {
 
   List<Stroke> eraseAtPoint(
     List<Stroke> strokes,
-    dynamic eraserCenter,
+    Point2D eraserCenter,
     double eraserRadius,
   ) {
     return EraserService.eraseStrokesAtPoint(
