@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/domain/value_objects/argb_color.dart';
 import '../../domain/models/paper_template.dart';
 import 'paper_color_picker.dart';
 import 'paper_orientation_selector.dart';
@@ -112,10 +113,12 @@ class _PaperCustomizationSheetState extends State<PaperCustomizationSheet> {
           ),
           const SizedBox(height: 20.0),
           PaperColorPicker(
-            selectedColor: _currentTemplate.backgroundColor,
+            selectedColor: Color(_currentTemplate.backgroundColor.value),
             onColorChanged: (color) {
               _updateTemplate(
-                _currentTemplate.copyWith(backgroundColor: color),
+                _currentTemplate.copyWith(
+                  backgroundColor: ArgbColor(color.toARGB32()),
+                ),
               );
             },
           ),
