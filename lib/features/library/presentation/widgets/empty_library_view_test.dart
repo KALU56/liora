@@ -4,16 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'empty_library_view.dart';
 
 void main() {
-  Widget buildTestWidget({
-    VoidCallback? onCreateNote,
-    ThemeData? theme,
-  }) {
+  Widget buildTestWidget({VoidCallback? onCreateNote, ThemeData? theme}) {
     return MaterialApp(
       theme: theme ?? ThemeData.light(),
       home: Scaffold(
-        body: EmptyLibraryView(
-          onCreateNote: onCreateNote ?? () {},
-        ),
+        body: EmptyLibraryView(onCreateNote: onCreateNote ?? () {}),
       ),
     );
   }
@@ -42,10 +37,7 @@ void main() {
     testWidgets('has a create-first-note button', (tester) async {
       await tester.pumpWidget(buildTestWidget());
 
-      expect(
-        find.byKey(const Key('create_first_note_button')),
-        findsOneWidget,
-      );
+      expect(find.byKey(const Key('create_first_note_button')), findsOneWidget);
       expect(find.byType(ElevatedButton), findsOneWidget);
     });
 
@@ -53,9 +45,7 @@ void main() {
       var callbackCount = 0;
 
       await tester.pumpWidget(
-        buildTestWidget(
-          onCreateNote: () => callbackCount++,
-        ),
+        buildTestWidget(onCreateNote: () => callbackCount++),
       );
 
       await tester.tap(find.byKey(const Key('create_first_note_button')));
@@ -65,9 +55,7 @@ void main() {
     });
 
     testWidgets('works correctly with a dark theme', (tester) async {
-      await tester.pumpWidget(
-        buildTestWidget(theme: ThemeData.dark()),
-      );
+      await tester.pumpWidget(buildTestWidget(theme: ThemeData.dark()));
 
       expect(find.text('No Notes Yet'), findsOneWidget);
       expect(find.text('Create Note'), findsOneWidget);
