@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 
 import '../../../canvas/domain/models/writing_tool.dart';
+import '../mappers/note_snapshot_codec.dart';
 import '../../domain/models/note_model.dart';
 import '../../domain/models/note_page.dart';
 import '../../domain/repositories/notes_repository.dart';
@@ -17,6 +17,7 @@ class NoteRepository implements NotesRepository {
     : _storage = storage ?? SharedPreferencesNoteStorage();
 
   final NoteStorage _storage;
+  final NoteSnapshotCodec _codec = const NoteSnapshotCodec();
   final List<NoteModel> _notes = [];
   Future<void> _writeQueue = Future.value();
   int _idCounter = 0;
@@ -33,16 +34,9 @@ class NoteRepository implements NotesRepository {
     try {
       final rawNotes = await _storage.read();
       if (rawNotes != null && rawNotes.isNotEmpty) {
-        final decoded = jsonDecode(rawNotes);
-        if (decoded is List) {
-          _notes
-            ..clear()
-            ..addAll(
-              decoded.whereType<Map>().map(
-                (note) => NoteModel.fromMap(Map<String, dynamic>.from(note)),
-              ),
-            );
-        }
+        _notes
+          ..clear()
+          ..addAll(_codec.decode(rawNotes));
       }
     } on FormatException {
       // Leave the current collection intact if an interrupted write is corrupt.
@@ -140,7 +134,7 @@ class NoteRepository implements NotesRepository {
   }
 
   void _schedulePersistence() {
-    final snapshot = jsonEncode(_notes.map((note) => note.toMap()).toList());
+    final snapshot = _codec.encode(_notes);
     _writeQueue = _writeQueue
         .catchError((_) {
           // A future mutation should still be able to recover from a failed write.
