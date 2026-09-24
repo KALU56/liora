@@ -5,7 +5,7 @@ import 'package:notability_clone/features/canvas/domain/models/touch_point.dart'
 import 'package:notability_clone/features/canvas/domain/models/writing_tool.dart';
 import 'package:notability_clone/features/canvas/domain/services/eraser_service.dart';
 import 'package:notability_clone/features/canvas/presentation/widgets/handwriting_canvas_widget.dart';
-import 'package:notability_clone/features/notes/presentation/note_editor_screen.dart';
+import 'package:notability_clone/features/library/presentation/new_note_screen.dart';
 
 void main() {
   group('Issue #5 — Digital Writing Tools QA Gate', () {
@@ -13,7 +13,7 @@ void main() {
       'Test 27 — Pen Tool Activation: Pen activates and default settings apply',
       (WidgetTester tester) async {
         await tester.pumpWidget(
-          const MaterialApp(home: NoteEditorScreen(title: 'Pen Test Note')),
+          const MaterialApp(home: NewNoteScreen()),
         );
         await tester.pumpAndSettle();
 
@@ -47,7 +47,7 @@ void main() {
       'Test 28 — Pen Color Customization: Changing color updates stroke color',
       (WidgetTester tester) async {
         await tester.pumpWidget(
-          const MaterialApp(home: NoteEditorScreen(title: 'Color Test Note')),
+          const MaterialApp(home: NewNoteScreen()),
         );
         await tester.pumpAndSettle();
 
@@ -99,7 +99,7 @@ void main() {
       'Test 31 — Pen Presets: Fine Pen & Marker presets update properties',
       (WidgetTester tester) async {
         await tester.pumpWidget(
-          const MaterialApp(home: NoteEditorScreen(title: 'Presets Test Note')),
+          const MaterialApp(home: NewNoteScreen()),
         );
         await tester.pumpAndSettle();
 
@@ -129,7 +129,7 @@ void main() {
       'Test 32 — Pencil Tool Visual Style: Distinct pencil toolType and texture',
       (WidgetTester tester) async {
         await tester.pumpWidget(
-          const MaterialApp(home: NoteEditorScreen(title: 'Pencil Test Note')),
+          const MaterialApp(home: NewNoteScreen()),
         );
         await tester.pumpAndSettle();
 
@@ -162,7 +162,7 @@ void main() {
       'Test 33 — Tool Switching: Switches cleanly between Pen and Pencil',
       (WidgetTester tester) async {
         await tester.pumpWidget(
-          const MaterialApp(home: NoteEditorScreen(title: 'Tool Switch Note')),
+          const MaterialApp(home: NewNoteScreen()),
         );
         await tester.pumpAndSettle();
 
@@ -197,7 +197,7 @@ void main() {
       (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: NoteEditorScreen(title: 'Highlighter Test Note'),
+            home: NewNoteScreen(),
           ),
         );
         await tester.pumpAndSettle();
@@ -261,7 +261,7 @@ void main() {
       (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: NoteEditorScreen(title: 'Highlighter Switch Note'),
+            home: NewNoteScreen(),
           ),
         );
         await tester.pumpAndSettle();
@@ -280,7 +280,7 @@ void main() {
       'Test 38 — Eraser Tool Size Selection: Small & Large sizes update radius',
       (WidgetTester tester) async {
         await tester.pumpWidget(
-          const MaterialApp(home: NoteEditorScreen(title: 'Eraser Size Note')),
+          const MaterialApp(home: NewNoteScreen()),
         );
         await tester.pumpAndSettle();
 
@@ -351,7 +351,7 @@ void main() {
       'Test 40 — Eraser Continuous Drag Erasing: Removes intersected strokes along path',
       (WidgetTester tester) async {
         await tester.pumpWidget(
-          const MaterialApp(home: NoteEditorScreen(title: 'Drag Erase Note')),
+          const MaterialApp(home: NewNoteScreen()),
         );
         await tester.pumpAndSettle();
 

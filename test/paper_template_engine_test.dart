@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:notability_clone/features/notes/presentation/note_editor_screen.dart';
+import 'package:notability_clone/features/library/presentation/new_note_screen.dart';
 import 'package:notability_clone/features/paper/domain/models/paper_template.dart';
 import 'package:notability_clone/features/paper/presentation/widgets/paper_canvas_widget.dart';
 
@@ -150,7 +150,7 @@ void main() {
       (WidgetTester tester) async {
         await tester.pumpWidget(
           const MaterialApp(
-            home: NoteEditorScreen(title: 'Test Color Persistence Note'),
+            home: NewNoteScreen(),
           ),
         );
         await tester.pumpAndSettle();
@@ -216,7 +216,7 @@ void main() {
         // 3. UI interaction test switching orientation via sheet
         await tester.pumpWidget(
           const MaterialApp(
-            home: NoteEditorScreen(title: 'Orientation Test Note'),
+            home: NewNoteScreen(),
           ),
         );
         await tester.pumpAndSettle();

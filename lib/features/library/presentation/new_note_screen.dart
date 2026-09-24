@@ -4,18 +4,23 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../canvas/domain/models/canvas_action.dart';
-import '../../canvas/domain/models/stroke.dart';
 import '../../canvas/domain/models/writing_tool.dart';
 import '../../canvas/domain/services/canvas_history_manager.dart';
 import '../../canvas/presentation/widgets/handwriting_canvas_widget.dart';
 import '../../canvas/presentation/widgets/writing_tools_toolbar.dart';
+import '../../notes/data/repositories/note_repository.dart';
 import '../../notes/domain/models/note_model.dart';
+import '../../notes/domain/models/note_page.dart';
 import '../../paper/domain/models/paper_template.dart';
 import '../../paper/presentation/widgets/paper_canvas_widget.dart';
 import '../../paper/presentation/widgets/paper_customization_sheet.dart';
 
+/// The note editor used for both a new note and an existing saved note.
+/// Each page owns its canvas data, paper template, and tool configuration.
 class NewNoteScreen extends StatefulWidget {
-  const NewNoteScreen({super.key});
+  final NoteRepository? repository;
+
+  const NewNoteScreen({super.key, this.repository});
 
   @override
   State<NewNoteScreen> createState() => _NewNoteScreenState();
@@ -23,28 +28,45 @@ class NewNoteScreen extends StatefulWidget {
 
 class _NewNoteScreenState extends State<NewNoteScreen> {
   final TextEditingController _titleController = TextEditingController();
-  NoteModel? _existingNote;
-  bool _isInitialized = false;
-
-  PaperTemplate _paperTemplate = const PaperTemplate();
   final TransformationController _transformationController =
       TransformationController();
-  final CanvasHistoryManager _historyManager = CanvasHistoryManager();
-  List<Stroke> _strokes = [];
+  final Map<String, CanvasHistoryManager> _historyByPage = {};
+
+  late final NoteRepository _repository;
+  NoteModel? _existingNote;
+  late List<NotePage> _pages;
+  int _currentPageIndex = 0;
+  int _newPageCounter = 0;
+  bool _isInitialized = false;
   bool _isPenMode = true;
-  ToolConfig _toolConfig = ToolConfig.defaultPen;
+
+  NotePage get _currentPage => _pages[_currentPageIndex];
+  CanvasHistoryManager get _historyManager =>
+      _historyByPage.putIfAbsent(_currentPage.id, CanvasHistoryManager.new);
+
+  @override
+  void initState() {
+    super.initState();
+    _repository = widget.repository ?? appNoteRepository;
+    _pages = [_newPage()];
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_isInitialized) {
-      final args = ModalRoute.of(context)?.settings.arguments;
-      if (args is NoteModel) {
-        _existingNote = args;
-        _titleController.text = args.title;
+    if (_isInitialized) return;
+
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is NoteModel) {
+      _existingNote = args;
+      _titleController.text = args.title;
+      if (args.pages.isNotEmpty) {
+        _pages = List<NotePage>.from(args.pages);
       }
-      _isInitialized = true;
+    } else if (args is Map<String, dynamic>) {
+      _titleController.text = args['title'] as String? ?? '';
     }
+    _isInitialized = true;
   }
 
   @override
@@ -54,21 +76,49 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
     super.dispose();
   }
 
-  void _openPaperCustomization() async {
+  NotePage _newPage({PaperTemplate? template}) {
+    _newPageCounter++;
+    return NotePage(
+      id: 'page_${DateTime.now().microsecondsSinceEpoch}_$_newPageCounter',
+      paperTemplate: template ?? const PaperTemplate(),
+      toolConfig: ToolConfig.defaultPen,
+    );
+  }
+
+  void _replaceCurrentPage(NotePage page) {
+    setState(() {
+      _pages = List<NotePage>.from(_pages)..[_currentPageIndex] = page;
+    });
+    _autosaveExistingNote();
+  }
+
+  void _autosaveExistingNote() {
+    final existingNote = _existingNote;
+    if (existingNote == null) return;
+
+    final title = _titleController.text.trim();
+    final updated = existingNote.copyWith(
+      title: title.isEmpty ? 'Untitled Note' : title,
+      pages: _pages,
+    );
+    if (_repository.updateNote(updated)) {
+      _existingNote = _repository.getNoteById(updated.id) ?? updated;
+    }
+  }
+
+  Future<void> _openPaperCustomization() async {
     final updatedTemplate = await PaperCustomizationSheet.show(
       context,
-      initialTemplate: _paperTemplate,
+      initialTemplate: _currentPage.paperTemplate,
       onLiveUpdate: (newTemplate) {
-        setState(() {
-          _paperTemplate = newTemplate;
-        });
+        _replaceCurrentPage(_currentPage.copyWith(paperTemplate: newTemplate));
       },
     );
 
     if (updatedTemplate != null && mounted) {
-      setState(() {
-        _paperTemplate = updatedTemplate;
-      });
+      _replaceCurrentPage(
+        _currentPage.copyWith(paperTemplate: updatedTemplate),
+      );
     }
   }
 
@@ -79,16 +129,16 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
   }
 
   void _zoomIn() {
-    final Matrix4 matrix = _transformationController.value.clone();
-    matrix.multiply(Matrix4.diagonal3Values(1.25, 1.25, 1.25));
+    final matrix = _transformationController.value.clone()
+      ..multiply(Matrix4.diagonal3Values(1.25, 1.25, 1.25));
     setState(() {
       _transformationController.value = matrix;
     });
   }
 
   void _zoomOut() {
-    final Matrix4 matrix = _transformationController.value.clone();
-    matrix.multiply(Matrix4.diagonal3Values(0.8, 0.8, 0.8));
+    final matrix = _transformationController.value.clone()
+      ..multiply(Matrix4.diagonal3Values(0.8, 0.8, 0.8));
     setState(() {
       _transformationController.value = matrix;
     });
@@ -102,34 +152,59 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
 
   void _undoStroke() {
     if (_historyManager.canUndo) {
-      setState(() {
-        _strokes = _historyManager.undo(_strokes);
-      });
+      _replaceCurrentPage(
+        _currentPage.copyWith(
+          strokes: _historyManager.undo(_currentPage.strokes),
+        ),
+      );
     }
   }
 
   void _redoStroke() {
     if (_historyManager.canRedo) {
-      setState(() {
-        _strokes = _historyManager.redo(_strokes);
-      });
+      _replaceCurrentPage(
+        _currentPage.copyWith(
+          strokes: _historyManager.redo(_currentPage.strokes),
+        ),
+      );
     }
   }
 
   void _clearCanvas() {
-    if (_strokes.isNotEmpty) {
-      _historyManager.recordAction(ClearCanvasAction(List.from(_strokes)));
-      setState(() {
-        _strokes.clear();
-      });
+    if (_currentPage.strokes.isNotEmpty) {
+      _historyManager.recordAction(ClearCanvasAction(_currentPage.strokes));
+      _replaceCurrentPage(_currentPage.copyWith(strokes: const []));
     }
+  }
+
+  void _goToPage(int index) {
+    if (index < 0 || index >= _pages.length) return;
+    setState(() {
+      _currentPageIndex = index;
+      _transformationController.value = Matrix4.identity();
+    });
+  }
+
+  void _addPage() {
+    final newPage = _newPage(template: _currentPage.paperTemplate);
+    setState(() {
+      _pages = [..._pages, newPage];
+      _currentPageIndex = _pages.length - 1;
+      _transformationController.value = Matrix4.identity();
+    });
+    _autosaveExistingNote();
   }
 
   void _submit() {
     final title = _titleController.text.trim();
     final noteTitle = title.isEmpty ? 'Untitled Note' : title;
-    Navigator.of(context)
-        .pop({'id': _existingNote?.id, 'title': noteTitle, 'date': 'Today'});
+    _autosaveExistingNote();
+    Navigator.of(context).pop({
+      'id': _existingNote?.id,
+      'title': noteTitle,
+      'pages': List<NotePage>.from(_pages),
+      'date': 'Today',
+    });
   }
 
   @override
@@ -138,6 +213,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
     final displayTitle = _titleController.text.isEmpty
         ? (isEditing ? 'Untitled Note' : 'Create New Note')
         : _titleController.text;
+    final page = _currentPage;
 
     return Scaffold(
       appBar: AppBar(
@@ -165,7 +241,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
             key: const Key('clear_canvas_button'),
             icon: const Icon(Icons.delete_sweep),
             tooltip: 'Clear Canvas',
-            onPressed: _strokes.isEmpty ? null : _clearCanvas,
+            onPressed: page.strokes.isEmpty ? null : _clearCanvas,
           ),
           IconButton(
             key: const Key('paper_settings_button'),
@@ -192,18 +268,51 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               labelText: 'Note Title',
               hintText: 'e.g. Biology Lecture 1',
               autofocus: !isEditing,
-              onChanged: (val) {
+              onChanged: (_) {
                 setState(() {});
+                _autosaveExistingNote();
               },
             ),
             AppSpacing.gapMd,
+            Row(
+              children: [
+                IconButton(
+                  key: const Key('previous_page_button'),
+                  icon: const Icon(Icons.chevron_left),
+                  tooltip: 'Previous Page',
+                  onPressed: _currentPageIndex == 0
+                      ? null
+                      : () => _goToPage(_currentPageIndex - 1),
+                ),
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      'Page ${_currentPageIndex + 1} of ${_pages.length}',
+                      key: const Key('page_counter'),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  key: const Key('next_page_button'),
+                  icon: const Icon(Icons.chevron_right),
+                  tooltip: 'Next Page',
+                  onPressed: _currentPageIndex == _pages.length - 1
+                      ? null
+                      : () => _goToPage(_currentPageIndex + 1),
+                ),
+                IconButton(
+                  key: const Key('add_page_button'),
+                  icon: const Icon(Icons.note_add_outlined),
+                  tooltip: 'Add Page',
+                  onPressed: _addPage,
+                ),
+              ],
+            ),
             if (_isPenMode)
               WritingToolsToolbar(
-                activeConfig: _toolConfig,
+                activeConfig: page.toolConfig,
                 onConfigChanged: (newConfig) {
-                  setState(() {
-                    _toolConfig = newConfig;
-                  });
+                  _replaceCurrentPage(page.copyWith(toolConfig: newConfig));
                 },
               ),
             AppSpacing.gapSm,
@@ -219,58 +328,54 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                   ),
                   child: Stack(
                     children: [
-                      // Pan & Zoom Viewport
                       Positioned.fill(
                         child: InteractiveViewer(
                           key: const Key('note_interactive_viewer'),
                           transformationController: _transformationController,
                           panEnabled: !_isPenMode,
                           scaleEnabled: true,
-                          constrained: false,
+                          constrained: true,
                           minScale: 0.2,
                           maxScale: 5.0,
                           boundaryMargin: const EdgeInsets.all(800),
                           child: Center(
                             child: Padding(
-                              padding: const EdgeInsets.all(40.0),
+                              padding: const EdgeInsets.all(40),
                               child: PaperCanvasWidget(
                                 key: const Key('paper_canvas'),
-                                template: _paperTemplate,
+                                template: page.paperTemplate,
                                 child: HandwritingCanvasWidget(
                                   key: const Key('handwriting_canvas'),
-                                  strokes: _strokes,
+                                  strokes: page.strokes,
                                   isDrawingMode: _isPenMode,
-                                  toolConfig: _toolConfig,
+                                  toolConfig: page.toolConfig,
                                   onStrokesChanged: (newStrokes) {
-                                    setState(() {
-                                      _strokes = newStrokes;
-                                    });
+                                    _replaceCurrentPage(
+                                      _currentPage.copyWith(
+                                        strokes: newStrokes,
+                                      ),
+                                    );
                                   },
-                                  onActionRecorded: (action) {
-                                    setState(() {
-                                      _historyManager.recordAction(action);
-                                    });
-                                  },
+                                  onActionRecorded:
+                                      _historyManager.recordAction,
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-
-                      // Zoom Control Overlay
                       Positioned(
-                        right: 12.0,
-                        bottom: 12.0,
+                        right: 12,
+                        bottom: 12,
                         child: Card(
                           elevation: 4,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24.0),
+                            borderRadius: BorderRadius.circular(24),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 4.0,
-                              vertical: 4.0,
+                              horizontal: 4,
+                              vertical: 4,
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,

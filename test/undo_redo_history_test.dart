@@ -5,7 +5,7 @@ import 'package:notability_clone/features/canvas/domain/models/stroke.dart';
 import 'package:notability_clone/features/canvas/domain/models/touch_point.dart';
 import 'package:notability_clone/features/canvas/domain/services/canvas_history_manager.dart';
 import 'package:notability_clone/features/canvas/presentation/widgets/handwriting_canvas_widget.dart';
-import 'package:notability_clone/features/notes/presentation/note_editor_screen.dart';
+import 'package:notability_clone/features/library/presentation/new_note_screen.dart';
 
 void main() {
   group('Issue #6 — Undo & Redo History System QA Gate', () {
@@ -13,7 +13,7 @@ void main() {
       'Test 42 — Undo Writing: Last stroke action disappears cleanly',
       (WidgetTester tester) async {
         await tester.pumpWidget(
-          const MaterialApp(home: NoteEditorScreen(title: 'Undo Writing Test')),
+          const MaterialApp(home: NewNoteScreen()),
         );
         await tester.pumpAndSettle();
 
@@ -46,7 +46,7 @@ void main() {
       'Test 43 — Redo Writing: Undone stroke action returns cleanly',
       (WidgetTester tester) async {
         await tester.pumpWidget(
-          const MaterialApp(home: NoteEditorScreen(title: 'Redo Writing Test')),
+          const MaterialApp(home: NewNoteScreen()),
         );
         await tester.pumpAndSettle();
 

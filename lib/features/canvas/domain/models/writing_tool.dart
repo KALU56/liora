@@ -41,6 +41,37 @@ class ToolConfig {
     );
   }
 
+  Map<String, dynamic> toMap() {
+    return {
+      'toolType': toolType.name,
+      'color': color.toARGB32(),
+      'strokeWidth': strokeWidth,
+      'opacity': opacity,
+      'eraserSize': eraserSize.name,
+    };
+  }
+
+  Map<String, dynamic> toJson() => toMap();
+
+  factory ToolConfig.fromMap(Map<String, dynamic> map) {
+    return ToolConfig(
+      toolType: WritingToolType.values.firstWhere(
+        (type) => type.name == map['toolType'],
+        orElse: () => WritingToolType.pen,
+      ),
+      color: Color((map['color'] as num?)?.toInt() ?? Colors.black.toARGB32()),
+      strokeWidth: (map['strokeWidth'] as num?)?.toDouble() ?? 3.0,
+      opacity: (map['opacity'] as num?)?.toDouble() ?? 1.0,
+      eraserSize: EraserSize.values.firstWhere(
+        (size) => size.name == map['eraserSize'],
+        orElse: () => EraserSize.small,
+      ),
+    );
+  }
+
+  factory ToolConfig.fromJson(Map<String, dynamic> json) =>
+      ToolConfig.fromMap(json);
+
   /// Preset configurations for quick tool selection
   static const ToolConfig defaultPen = ToolConfig(
     toolType: WritingToolType.pen,

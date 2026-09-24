@@ -31,9 +31,14 @@ class TouchPoint {
 
   factory TouchPoint.fromMap(Map<String, dynamic> map) {
     return TouchPoint(
-      offset: Offset(map['dx'] as double, map['dy'] as double),
-      pressure: map['pressure'] as double? ?? 1.0,
-      timestamp: DateTime.parse(map['timestamp'] as String),
+      offset: Offset(
+        (map['dx'] as num?)?.toDouble() ?? 0.0,
+        (map['dy'] as num?)?.toDouble() ?? 0.0,
+      ),
+      pressure: (map['pressure'] as num?)?.toDouble() ?? 1.0,
+      timestamp: map['timestamp'] is String
+          ? DateTime.parse(map['timestamp'] as String)
+          : DateTime.fromMillisecondsSinceEpoch(0),
     );
   }
 }

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../features/library/presentation/home_screen.dart';
 import '../../features/library/presentation/new_note_screen.dart';
-import '../../features/notes/domain/models/note_model.dart';
-import '../../features/notes/presentation/note_editor_screen.dart';
 
 abstract class AppRoutes {
   static const String home = '/';
@@ -14,18 +12,7 @@ abstract class AppRoutes {
     return {
       home: (context) => const HomeScreen(),
       editor: (context) => const NewNoteScreen(),
-      noteEditor: (context) {
-        final args = ModalRoute.of(context)?.settings.arguments;
-        if (args is NoteModel) {
-          return NoteEditorScreen(title: args.title);
-        }
-        if (args is Map<String, dynamic>) {
-          return NoteEditorScreen(
-            title: args['title'] as String? ?? 'Untitled Note',
-          );
-        }
-        return const NoteEditorScreen();
-      },
+      noteEditor: (context) => const NewNoteScreen(),
     };
   }
 }

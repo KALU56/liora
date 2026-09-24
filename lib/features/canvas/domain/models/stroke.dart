@@ -43,6 +43,48 @@ class Stroke {
     );
   }
 
+  /// Serializes every visual attribute as well as the sampled touch points.
+  /// Using a 32-bit ARGB value avoids losing alpha from the selected color.
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'points': points.map((point) => point.toMap()).toList(),
+      'color': color.toARGB32(),
+      'strokeWidth': strokeWidth,
+      'toolType': toolType.name,
+      'opacity': opacity,
+      'isComplete': isComplete,
+    };
+  }
+
+  Map<String, dynamic> toJson() => toMap();
+
+  factory Stroke.fromMap(Map<String, dynamic> map) {
+    final rawPoints = map['points'];
+    return Stroke(
+      id: map['id'] as String? ?? '',
+      points: rawPoints is List
+          ? rawPoints
+                .whereType<Map>()
+                .map(
+                  (point) =>
+                      TouchPoint.fromMap(Map<String, dynamic>.from(point)),
+                )
+                .toList()
+          : const [],
+      color: Color((map['color'] as num?)?.toInt() ?? Colors.black.toARGB32()),
+      strokeWidth: (map['strokeWidth'] as num?)?.toDouble() ?? 3.0,
+      toolType: WritingToolType.values.firstWhere(
+        (type) => type.name == map['toolType'],
+        orElse: () => WritingToolType.pen,
+      ),
+      opacity: (map['opacity'] as num?)?.toDouble() ?? 1.0,
+      isComplete: map['isComplete'] as bool? ?? false,
+    );
+  }
+
+  factory Stroke.fromJson(Map<String, dynamic> json) => Stroke.fromMap(json);
+
   /// Converts stroke points into a smooth quadratic bezier curve Path object.
   Path toPath() {
     final Path path = Path();

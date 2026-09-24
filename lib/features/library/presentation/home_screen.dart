@@ -5,12 +5,13 @@ import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../notes/data/repositories/note_repository.dart';
 import '../../notes/domain/models/note_model.dart';
+import '../../notes/domain/models/note_page.dart';
 import '../../notes/presentation/widgets/delete_note_dialog.dart';
 import '../../notes/presentation/widgets/note_card.dart';
 import '../../notes/presentation/widgets/rename_note_dialog.dart';
 import 'widgets/empty_library_view.dart';
 
-final NoteRepository globalNoteRepository = NoteRepository();
+final NoteRepository globalNoteRepository = appNoteRepository;
 
 class HomeScreen extends StatefulWidget {
   final NoteRepository? repository;
@@ -45,7 +46,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (result != null && result is Map<String, dynamic>) {
       final title = result['title'] as String?;
       setState(() {
-        _repository.createNote(title: title);
+        final note = _repository.createNote(title: title);
+        final pages = result['pages'];
+        if (pages is List<NotePage>) {
+          _repository.updateNote(note.copyWith(pages: pages));
+        }
       });
     }
   }
@@ -55,9 +60,16 @@ class _HomeScreenState extends State<HomeScreen> {
         .pushNamed(AppRoutes.editor, arguments: note);
     if (result != null && result is Map<String, dynamic>) {
       final updatedTitle = result['title'] as String?;
-      if (updatedTitle != null) {
+      final pages = result['pages'];
+      if (updatedTitle != null || pages is List<NotePage>) {
         setState(() {
-          _repository.renameNote(note.id, updatedTitle);
+          final currentNote = _repository.getNoteById(note.id) ?? note;
+          _repository.updateNote(
+            currentNote.copyWith(
+              title: updatedTitle ?? currentNote.title,
+              pages: pages is List<NotePage> ? pages : currentNote.pages,
+            ),
+          );
         });
       }
     }

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'core/routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
+import 'features/notes/data/repositories/note_repository.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await appNoteRepository.initialize();
   runApp(const PaperNoteApp());
 }
 

@@ -4,8 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:notability_clone/features/canvas/domain/models/stroke.dart';
 import 'package:notability_clone/features/canvas/domain/models/touch_point.dart';
 import 'package:notability_clone/features/canvas/presentation/widgets/handwriting_canvas_widget.dart';
-import 'package:notability_clone/features/notes/presentation/note_editor_screen.dart';
-import 'package:notability_clone/features/paper/domain/models/paper_template.dart';
+import 'package:notability_clone/features/library/presentation/new_note_screen.dart';
 
 void main() {
   group(
@@ -16,10 +15,7 @@ void main() {
         (WidgetTester tester) async {
           await tester.pumpWidget(
             const MaterialApp(
-              home: NoteEditorScreen(
-                title: 'Viewport Test Note',
-                initialTemplate: PaperTemplate(),
-              ),
+              home: NewNoteScreen(),
             ),
           );
           await tester.pumpAndSettle();
@@ -37,7 +33,7 @@ void main() {
         'Test 16 — Viewport Control Zoom In: Zooming in transforms viewport scale',
         (WidgetTester tester) async {
           await tester.pumpWidget(
-            const MaterialApp(home: NoteEditorScreen(title: 'Zoom In Test')),
+            const MaterialApp(home: NewNoteScreen()),
           );
           await tester.pumpAndSettle();
 
@@ -67,7 +63,7 @@ void main() {
         'Test 17 — Viewport Control Zoom Out: Zooming out scales canvas viewport accurately',
         (WidgetTester tester) async {
           await tester.pumpWidget(
-            const MaterialApp(home: NoteEditorScreen(title: 'Zoom Out Test')),
+            const MaterialApp(home: NewNoteScreen()),
           );
           await tester.pumpAndSettle();
 
@@ -90,7 +86,7 @@ void main() {
         'Test 18 — Viewport Control Pan: Panning translates viewport without adding stray strokes in Pan Mode',
         (WidgetTester tester) async {
           await tester.pumpWidget(
-            const MaterialApp(home: NoteEditorScreen(title: 'Pan Test')),
+            const MaterialApp(home: NewNoteScreen()),
           );
           await tester.pumpAndSettle();
 
@@ -120,7 +116,7 @@ void main() {
         'Test 19 — Reset Zoom: Returns canvas scale to identity matrix (1.0)',
         (WidgetTester tester) async {
           await tester.pumpWidget(
-            const MaterialApp(home: NoteEditorScreen(title: 'Reset Zoom Test')),
+            const MaterialApp(home: NewNoteScreen()),
           );
           await tester.pumpAndSettle();
 
@@ -284,7 +280,7 @@ void main() {
         'Test 24 — Undo Stroke: Tapping undo removes the most recent stroke',
         (WidgetTester tester) async {
           await tester.pumpWidget(
-            const MaterialApp(home: NoteEditorScreen(title: 'Undo Test')),
+            const MaterialApp(home: NewNoteScreen()),
           );
           await tester.pumpAndSettle();
 
@@ -313,7 +309,7 @@ void main() {
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
-          const MaterialApp(home: NoteEditorScreen(title: 'Clear Test')),
+          const MaterialApp(home: NewNoteScreen()),
         );
         await tester.pumpAndSettle();
 
