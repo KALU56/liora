@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../domain/models/stroke.dart';
 import '../../domain/models/writing_tool.dart';
+import 'stroke_path_builder.dart';
 
 /// CustomPainter that renders independent stroke objects with support for
 /// Pen, Pencil, Highlighter, and Eraser visual styles.
 class StrokePainter extends CustomPainter {
+  static const _pathBuilder = StrokePathBuilder();
   final List<Stroke> strokes;
   final Stroke? activeStroke;
   final Offset? eraserPosition;
@@ -36,7 +38,7 @@ class StrokePainter extends CustomPainter {
   void _drawStroke(Canvas canvas, Stroke stroke) {
     if (stroke.points.isEmpty) return;
 
-    final path = stroke.toPath();
+    final path = _pathBuilder.build(stroke);
 
     switch (stroke.toolType) {
       case WritingToolType.pencil:
@@ -59,7 +61,9 @@ class StrokePainter extends CustomPainter {
 
   void _drawPenStroke(Canvas canvas, Path path, Stroke stroke) {
     final paint = Paint()
-      ..color = stroke.color.withValues(alpha: stroke.opacity.clamp(0.0, 1.0))
+      ..color = Color(stroke.color.value).withValues(
+        alpha: stroke.opacity.clamp(0.0, 1.0),
+      )
       ..strokeWidth = stroke.strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -74,7 +78,7 @@ class StrokePainter extends CustomPainter {
     final baseOpacity = (stroke.opacity * 0.75).clamp(0.0, 1.0);
 
     final mainPaint = Paint()
-      ..color = stroke.color.withValues(alpha: baseOpacity)
+      ..color = Color(stroke.color.value).withValues(alpha: baseOpacity)
       ..strokeWidth = stroke.strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -85,7 +89,7 @@ class StrokePainter extends CustomPainter {
 
     // Subtle texture pass
     final texturePaint = Paint()
-      ..color = stroke.color.withValues(
+      ..color = Color(stroke.color.value).withValues(
         alpha: (baseOpacity * 0.3).clamp(0.0, 1.0),
       )
       ..strokeWidth = stroke.strokeWidth * 0.8
@@ -105,7 +109,7 @@ class StrokePainter extends CustomPainter {
     final highlightOpacity = (stroke.opacity * 0.4).clamp(0.0, 1.0);
 
     final paint = Paint()
-      ..color = stroke.color.withValues(alpha: highlightOpacity)
+      ..color = Color(stroke.color.value).withValues(alpha: highlightOpacity)
       ..strokeWidth = stroke.strokeWidth
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.square
