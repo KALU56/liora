@@ -1,9 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:notability_clone/features/canvas/domain/models/point_2d.dart';
 import 'package:notability_clone/features/canvas/domain/models/stroke.dart';
 import 'package:notability_clone/features/canvas/domain/models/touch_point.dart';
 import 'package:notability_clone/features/canvas/presentation/widgets/handwriting_canvas_widget.dart';
+import 'package:notability_clone/features/canvas/presentation/widgets/stroke_path_builder.dart';
+import 'package:notability_clone/features/notes/data/mappers/note_model_mapper.dart';
 import 'package:notability_clone/features/library/presentation/new_note_screen.dart';
 
 void main() {
@@ -253,13 +256,13 @@ void main() {
           final stroke = Stroke(
             id: 'stroke_1',
             points: [
-              TouchPoint(offset: const Offset(10, 10), timestamp: now),
-              TouchPoint(offset: const Offset(20, 30), timestamp: now),
-              TouchPoint(offset: const Offset(40, 50), timestamp: now),
+              TouchPoint(position: const Point2D(10, 10), timestamp: now),
+              TouchPoint(position: const Point2D(20, 30), timestamp: now),
+              TouchPoint(position: const Point2D(40, 50), timestamp: now),
             ],
           );
 
-          final path = stroke.toPath();
+          final path = const StrokePathBuilder().build(stroke);
           expect(path.getBounds().isEmpty, isFalse);
         },
       );
@@ -325,15 +328,16 @@ void main() {
         (WidgetTester tester) async {
           final now = DateTime.now();
           final point = TouchPoint(
-            offset: const Offset(15.0, 25.0),
+            position: const Point2D(15.0, 25.0),
             pressure: 0.8,
             timestamp: now,
           );
 
-          final map = point.toMap();
-          final restored = TouchPoint.fromMap(map);
+          final mapper = const NoteModelMapper();
+          final map = mapper.pointToMap(point);
+          final restored = mapper.pointFromMap(map);
 
-          expect(restored.offset, equals(const Offset(15.0, 25.0)));
+          expect(restored.position, equals(const Point2D(15.0, 25.0)));
           expect(restored.pressure, equals(0.8));
           expect(
             restored.timestamp.toIso8601String(),
