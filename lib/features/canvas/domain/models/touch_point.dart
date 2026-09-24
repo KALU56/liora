@@ -12,12 +12,15 @@ class TouchPoint {
     required this.timestamp,
   });
 
-  TouchPoint copyWith({Point2D? position, double? pressure, DateTime? timestamp}) {
+  TouchPoint copyWith({
+    Point2D? position,
+    double? pressure,
+    DateTime? timestamp,
+  }) {
     return TouchPoint(
       position: position ?? this.position,
       pressure: pressure ?? this.pressure,
       timestamp: timestamp ?? this.timestamp,
     );
   }
-
 }
