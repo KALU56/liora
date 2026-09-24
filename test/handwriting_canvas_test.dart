@@ -13,11 +13,7 @@ void main() {
       testWidgets(
         'Test 15 — Canvas Loading: Canvas fills viewport without clipping',
         (WidgetTester tester) async {
-          await tester.pumpWidget(
-            const MaterialApp(
-              home: NewNoteScreen(),
-            ),
-          );
+          await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
           await tester.pumpAndSettle();
 
           expect(find.byKey(const Key('paper_canvas')), findsOneWidget);
@@ -32,9 +28,7 @@ void main() {
       testWidgets(
         'Test 16 — Viewport Control Zoom In: Zooming in transforms viewport scale',
         (WidgetTester tester) async {
-          await tester.pumpWidget(
-            const MaterialApp(home: NewNoteScreen()),
-          );
+          await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
           await tester.pumpAndSettle();
 
           final viewerFinder = find.byKey(const Key('note_interactive_viewer'));
@@ -62,9 +56,7 @@ void main() {
       testWidgets(
         'Test 17 — Viewport Control Zoom Out: Zooming out scales canvas viewport accurately',
         (WidgetTester tester) async {
-          await tester.pumpWidget(
-            const MaterialApp(home: NewNoteScreen()),
-          );
+          await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
           await tester.pumpAndSettle();
 
           final viewerFinder = find.byKey(const Key('note_interactive_viewer'));
@@ -85,9 +77,7 @@ void main() {
       testWidgets(
         'Test 18 — Viewport Control Pan: Panning translates viewport without adding stray strokes in Pan Mode',
         (WidgetTester tester) async {
-          await tester.pumpWidget(
-            const MaterialApp(home: NewNoteScreen()),
-          );
+          await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
           await tester.pumpAndSettle();
 
           // Switch to Pan Mode
@@ -115,9 +105,7 @@ void main() {
       testWidgets(
         'Test 19 — Reset Zoom: Returns canvas scale to identity matrix (1.0)',
         (WidgetTester tester) async {
-          await tester.pumpWidget(
-            const MaterialApp(home: NewNoteScreen()),
-          );
+          await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
           await tester.pumpAndSettle();
 
           // Zoom in twice
@@ -279,9 +267,7 @@ void main() {
       testWidgets(
         'Test 24 — Undo Stroke: Tapping undo removes the most recent stroke',
         (WidgetTester tester) async {
-          await tester.pumpWidget(
-            const MaterialApp(home: NewNoteScreen()),
-          );
+          await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
           await tester.pumpAndSettle();
 
           final center = tester.getCenter(
@@ -308,9 +294,7 @@ void main() {
       testWidgets('Test 25 — Clear Canvas: Tapping clear removes all strokes', (
         WidgetTester tester,
       ) async {
-        await tester.pumpWidget(
-          const MaterialApp(home: NewNoteScreen()),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         final center = tester.getCenter(find.byKey(const Key('paper_canvas')));

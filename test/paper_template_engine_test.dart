@@ -148,11 +148,7 @@ void main() {
     testWidgets(
       'Test 13 — Paper Color: Background color changes and persists',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: NewNoteScreen(),
-          ),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         // Open Paper Settings bottom sheet
@@ -214,11 +210,7 @@ void main() {
         expect(landscapeTemplate.pageSize, equals(const Size(792.0, 612.0)));
 
         // 3. UI interaction test switching orientation via sheet
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: NewNoteScreen(),
-          ),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         // Verify initial canvas size is Portrait (612 x 792)

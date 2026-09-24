@@ -12,9 +12,7 @@ void main() {
     testWidgets(
       'Test 27 — Pen Tool Activation: Pen activates and default settings apply',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(home: NewNoteScreen()),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         expect(find.byKey(const Key('tool_pen')), findsOneWidget);
@@ -46,9 +44,7 @@ void main() {
     testWidgets(
       'Test 28 — Pen Color Customization: Changing color updates stroke color',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(home: NewNoteScreen()),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         // Select Blue color
@@ -98,9 +94,7 @@ void main() {
     testWidgets(
       'Test 31 — Pen Presets: Fine Pen & Marker presets update properties',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(home: NewNoteScreen()),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         // Select Fine Pen preset
@@ -128,9 +122,7 @@ void main() {
     testWidgets(
       'Test 32 — Pencil Tool Visual Style: Distinct pencil toolType and texture',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(home: NewNoteScreen()),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         // Select Pencil tool
@@ -161,9 +153,7 @@ void main() {
     testWidgets(
       'Test 33 — Tool Switching: Switches cleanly between Pen and Pencil',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(home: NewNoteScreen()),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         // Tap Pencil
@@ -195,11 +185,7 @@ void main() {
     testWidgets(
       'Test 34 — Highlighter Tool Semi-Transparency: Renders with translucency',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: NewNoteScreen(),
-          ),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         // Select Highlighter tool
@@ -259,11 +245,7 @@ void main() {
     testWidgets(
       'Test 37 — Highlighter Tool Switching: Switches cleanly with Pen',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: NewNoteScreen(),
-          ),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         await tester.tap(find.byKey(const Key('tool_highlighter')));
@@ -279,9 +261,7 @@ void main() {
     testWidgets(
       'Test 38 — Eraser Tool Size Selection: Small & Large sizes update radius',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(home: NewNoteScreen()),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         // Tap Eraser tool
@@ -350,9 +330,7 @@ void main() {
     testWidgets(
       'Test 40 — Eraser Continuous Drag Erasing: Removes intersected strokes along path',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(home: NewNoteScreen()),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         // Draw a stroke first

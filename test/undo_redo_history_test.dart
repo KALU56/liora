@@ -12,9 +12,7 @@ void main() {
     testWidgets(
       'Test 42 — Undo Writing: Last stroke action disappears cleanly',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(home: NewNoteScreen()),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         // Perform stroke 1
@@ -45,9 +43,7 @@ void main() {
     testWidgets(
       'Test 43 — Redo Writing: Undone stroke action returns cleanly',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(home: NewNoteScreen()),
-        );
+        await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
         // Perform stroke
