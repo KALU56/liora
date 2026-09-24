@@ -71,8 +71,8 @@ class PaperTemplate {
     final blue = backgroundColor.value & 0xFF;
     final double luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
     return luminance < 0.5
-      ? const ArgbColor(0x55FFFFFF)
-      : const ArgbColor(0x33000000);
+        ? const ArgbColor(0x55FFFFFF)
+        : const ArgbColor(0x33000000);
   }
 
   PaperTemplate copyWith({
