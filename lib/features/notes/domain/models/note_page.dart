@@ -33,42 +33,4 @@ class NotePage {
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'paperTemplate': paperTemplate.toJson(),
-      'strokes': strokes.map((stroke) => stroke.toMap()).toList(),
-      'toolConfig': toolConfig.toMap(),
-    };
-  }
-
-  Map<String, dynamic> toJson() => toMap();
-
-  factory NotePage.fromMap(Map<String, dynamic> map) {
-    final rawStrokes = map['strokes'];
-    return NotePage(
-      id: map['id'] as String? ?? 'page',
-      paperTemplate: map['paperTemplate'] is Map
-          ? PaperTemplate.fromJson(
-              Map<String, dynamic>.from(map['paperTemplate'] as Map),
-            )
-          : const PaperTemplate(),
-      strokes: rawStrokes is List
-          ? rawStrokes
-                .whereType<Map>()
-                .map(
-                  (stroke) => Stroke.fromMap(Map<String, dynamic>.from(stroke)),
-                )
-                .toList()
-          : const [],
-      toolConfig: map['toolConfig'] is Map
-          ? ToolConfig.fromMap(
-              Map<String, dynamic>.from(map['toolConfig'] as Map),
-            )
-          : const ToolConfig(),
-    );
-  }
-
-  factory NotePage.fromJson(Map<String, dynamic> json) =>
-      NotePage.fromMap(json);
 }
