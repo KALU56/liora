@@ -4,10 +4,7 @@ import '../domain/models/paper_template.dart';
 class PaperUseCases {
   const PaperUseCases();
 
-  PaperTemplate updateTemplate(
-    PaperTemplate current,
-    PaperTemplate updated,
-  ) {
+  PaperTemplate updateTemplate(PaperTemplate current, PaperTemplate updated) {
     return updated;
   }
 }
