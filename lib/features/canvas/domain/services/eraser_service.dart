@@ -52,14 +52,10 @@ class EraserService {
     final double l2 = dx * dx + dy * dy;
     if (l2 == 0) return point.distanceTo(segA) <= maxDist;
 
-    final double t =
-        (((point.x - segA.x) * dx + (point.y - segA.y) * dy) / l2)
-            .clamp(0.0, 1.0);
+    final double t = (((point.x - segA.x) * dx + (point.y - segA.y) * dy) / l2)
+        .clamp(0.0, 1.0);
 
-    final projection = Point2D(
-      segA.x + t * dx,
-      segA.y + t * dy,
-    );
+    final projection = Point2D(segA.x + t * dx, segA.y + t * dy);
 
     return point.distanceTo(projection) <= maxDist;
   }
