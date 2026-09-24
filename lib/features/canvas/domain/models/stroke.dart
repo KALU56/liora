@@ -41,5 +41,4 @@ class Stroke {
       isComplete: isComplete ?? this.isComplete,
     );
   }
-
 }
