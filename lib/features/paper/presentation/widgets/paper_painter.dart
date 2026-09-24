@@ -13,7 +13,7 @@ class PaperPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     // 1. Fill solid page background color
     final Paint bgPaint = Paint()
-      ..color = template.backgroundColor
+      ..color = Color(template.backgroundColor.value)
       ..style = PaintingStyle.fill;
     canvas.drawRect(Offset.zero & size, bgPaint);
 
@@ -39,7 +39,7 @@ class PaperPainter extends CustomPainter {
 
   void _drawRuledPattern(Canvas canvas, Size size) {
     final Paint linePaint = Paint()
-      ..color = template.effectivePatternColor
+      ..color = Color(template.effectivePatternColor.value)
       ..strokeWidth = 1.0
       ..style = PaintingStyle.stroke;
 
@@ -52,7 +52,7 @@ class PaperPainter extends CustomPainter {
     // Optional subtle left margin line for traditional notebook feel
     if (size.width > 100) {
       final Paint marginPaint = Paint()
-        ..color = template.backgroundColor.computeLuminance() < 0.5
+        ..color = Color(template.backgroundColor.value).computeLuminance() < 0.5
             ? const Color(0x33FF5252)
             : const Color(0x44FF5252)
         ..strokeWidth = 1.0
@@ -68,7 +68,7 @@ class PaperPainter extends CustomPainter {
 
   void _drawGridPattern(Canvas canvas, Size size) {
     final Paint gridPaint = Paint()
-      ..color = template.effectivePatternColor
+      ..color = Color(template.effectivePatternColor.value)
       ..strokeWidth = 0.8
       ..style = PaintingStyle.stroke;
 
@@ -87,7 +87,7 @@ class PaperPainter extends CustomPainter {
 
   void _drawDottedPattern(Canvas canvas, Size size) {
     final Paint dotPaint = Paint()
-      ..color = template.effectivePatternColor
+      ..color = Color(template.effectivePatternColor.value)
       ..style = PaintingStyle.fill;
 
     final double spacing = template.dotSpacing;
