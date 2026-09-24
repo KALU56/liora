@@ -19,13 +19,13 @@ class PaperCanvasWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Size pageSize = template.pageSize;
+    final pageSize = template.pageSize;
 
     return Container(
       width: pageSize.width,
       height: pageSize.height,
       decoration: BoxDecoration(
-        color: template.backgroundColor,
+        color: Color(template.backgroundColor.value),
         borderRadius: BorderRadius.circular(4.0),
         boxShadow: showShadow
             ? [
@@ -41,7 +41,7 @@ class PaperCanvasWidget extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(4.0),
         child: CustomPaint(
-          size: pageSize,
+          size: Size(pageSize.width, pageSize.height),
           painter: PaperPainter(template: template),
           child: child,
         ),
