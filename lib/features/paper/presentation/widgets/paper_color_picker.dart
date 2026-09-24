@@ -32,8 +32,9 @@ class PaperColorPicker extends StatelessWidget {
           child: Row(
             children: PaperColorOption.presets.map((preset) {
               final isSelected =
-                  selectedColor.toARGB32() == preset.color.toARGB32();
-              final isDark = preset.color.computeLuminance() < 0.5;
+                    selectedColor.toARGB32() == preset.color.value;
+                  final presetColor = Color(preset.color.value);
+                  final isDark = presetColor.computeLuminance() < 0.5;
 
               return Padding(
                 padding: const EdgeInsets.only(right: 8.0),
@@ -43,13 +44,13 @@ class PaperColorPicker extends StatelessWidget {
                     key: Key(
                       'paper_color_${preset.name.toLowerCase().replaceAll(' ', '_')}',
                     ),
-                    onTap: () => onColorChanged(preset.color),
+                    onTap: () => onColorChanged(presetColor),
                     borderRadius: BorderRadius.circular(20.0),
                     child: Container(
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: preset.color,
+                        color: presetColor,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: isSelected
