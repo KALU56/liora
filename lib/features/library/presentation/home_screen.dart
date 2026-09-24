@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/dependencies/app_dependencies.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../notes/application/notes_dependencies.dart';
 import '../../notes/application/notes_use_cases.dart';
 import '../../notes/domain/models/note_model.dart';
 import '../../notes/domain/models/note_page.dart';
@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _notes =
         widget.useCases ??
         (widget.repository == null
-            ? appNotesUseCases
+            ? appDependencies.notes
             : NotesUseCases(widget.repository!));
   }
 
