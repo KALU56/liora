@@ -1,33 +1,37 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
+import 'color_contrast.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
 
 abstract class AppTheme {
-  static ThemeData get lightTheme {
+  static ThemeData lightTheme({Color accent = AppColors.primary}) {
+    final onAccent = ColorContrast.readableForeground(accent);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      primaryColor: AppColors.primary,
+      primaryColor: accent,
       scaffoldBackgroundColor: AppColors.lightBackground,
-      colorScheme: const ColorScheme.light(
-        primary: AppColors.primary,
+      colorScheme: ColorScheme.light(
+        primary: accent,
         surface: AppColors.lightSurface,
         error: AppColors.error,
-        onPrimary: Colors.white,
+        onPrimary: onAccent,
         onSurface: AppColors.lightTextPrimary,
+        secondary: const Color(0xFFCF9B79),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.lightSurface,
         foregroundColor: AppColors.lightTextPrimary,
         elevation: 0,
-        scrolledUnderElevation: 1,
+        scrolledUnderElevation: 0,
         titleTextStyle: AppTypography.pageTitle,
       ),
       cardTheme: CardThemeData(
         color: AppColors.lightSurface,
-        elevation: 1,
+        elevation: 2,
+        shadowColor: const Color(0x1A493B28),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.md),
           side: const BorderSide(color: AppColors.lightBorder),
@@ -35,8 +39,8 @@ abstract class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
+          backgroundColor: accent,
+          foregroundColor: onAccent,
           textStyle: AppTypography.buttonText,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
@@ -64,7 +68,7 @@ abstract class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.sm),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          borderSide: BorderSide(color: accent, width: 1.5),
         ),
         labelStyle: AppTypography.bodyText.copyWith(
           color: AppColors.lightTextSecondary,
@@ -87,18 +91,20 @@ abstract class AppTheme {
     );
   }
 
-  static ThemeData get darkTheme {
+  static ThemeData darkTheme({Color accent = AppColors.primaryLight}) {
+    final onAccent = ColorContrast.readableForeground(accent);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      primaryColor: AppColors.primaryLight,
+      primaryColor: accent,
       scaffoldBackgroundColor: AppColors.darkBackground,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primaryLight,
+      colorScheme: ColorScheme.dark(
+        primary: accent,
         surface: AppColors.darkSurface,
         error: AppColors.error,
-        onPrimary: AppColors.darkBackground,
+        onPrimary: onAccent,
         onSurface: AppColors.darkTextPrimary,
+        secondary: const Color(0xFFD4A98C),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.darkSurface,
@@ -119,8 +125,8 @@ abstract class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryLight,
-          foregroundColor: AppColors.darkBackground,
+          backgroundColor: accent,
+          foregroundColor: onAccent,
           textStyle: AppTypography.buttonText,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
@@ -148,7 +154,7 @@ abstract class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.sm),
-          borderSide: const BorderSide(color: AppColors.primaryLight, width: 2),
+          borderSide: BorderSide(color: accent, width: 1.5),
         ),
         labelStyle: AppTypography.bodyText.copyWith(
           color: AppColors.darkTextSecondary,
