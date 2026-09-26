@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
 import '../../domain/models/note_model.dart';
 
 class NoteCard extends StatelessWidget {
@@ -46,20 +45,57 @@ class NoteCard extends StatelessWidget {
               Expanded(
                 child: Container(
                   width: double.infinity,
-                  color: isDark
-                      ? AppColors.darkBackground
-                      : AppColors.lightBackground,
+                  color: theme.colorScheme.primary.withValues(
+                    alpha: isDark ? 0.13 : 0.08,
+                  ),
                   child: Center(
-                    child: Icon(
-                      Icons.article_outlined,
-                      size: 48,
-                      color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                    child: Container(
+                      width: 76,
+                      height: 96,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isDark ? AppColors.darkSurface : Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(
+                              alpha: isDark ? 0.16 : 0.08,
+                            ),
+                            blurRadius: 14,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.description_outlined,
+                            size: 27,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(height: 10),
+                          for (var line = 0; line < 3; line++)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Container(
+                                height: 2,
+                                width: line == 2 ? 28 : 46,
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.22),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
               Padding(
-                padding: AppSpacing.paddingSm,
+                padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
                 child: Row(
                   children: [
                     Expanded(
@@ -71,7 +107,7 @@ class NoteCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -134,22 +170,22 @@ class NoteCard extends StatelessWidget {
 
     return Card(
       child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         onTap: onTap,
         leading: Container(
-          width: 44,
-          height: 44,
+          width: 50,
+          height: 50,
           decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(AppSpacing.sm),
+            color: theme.colorScheme.primary.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
           ),
-          child: Icon(
-            Icons.description_outlined,
-            color: theme.colorScheme.primary,
-          ),
+          child: Icon(Icons.notes_rounded, color: theme.colorScheme.primary),
         ),
         title: Text(
           note.title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
         subtitle: Text(
           '${note.pageCount} ${note.pageCount == 1 ? 'page' : 'pages'} • ${_formatDate(note.modifiedDate)}',
