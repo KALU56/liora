@@ -81,7 +81,7 @@ void main() {
           ],
           toolConfig: const ToolConfig(
             toolType: WritingToolType.pencil,
-            color: const ArgbColor(0xFFF44336),
+            color: ArgbColor(0xFFF44336),
             strokeWidth: 2,
             opacity: 0.8,
           ),
