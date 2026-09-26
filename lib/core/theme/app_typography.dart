@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 /// Centralized typography system.
 abstract class AppTypography {
   static const TextStyle appTitle = TextStyle(
-    fontSize: 24.0,
-    fontWeight: FontWeight.bold,
-    letterSpacing: -0.5,
+    fontSize: 27.0,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0,
+    height: 1.15,
+    fontFamily: 'serif',
   );
 
   static const TextStyle pageTitle = TextStyle(
-    fontSize: 20.0,
+    fontSize: 22.0,
     fontWeight: FontWeight.w600,
-    letterSpacing: -0.3,
+    letterSpacing: 0,
+    height: 1.2,
   );
 
   static const TextStyle bodyText = TextStyle(
@@ -23,7 +26,7 @@ abstract class AppTypography {
   static const TextStyle smallText = TextStyle(
     fontSize: 13.0,
     fontWeight: FontWeight.normal,
-    letterSpacing: 0.1,
+    letterSpacing: 0,
   );
 
   static const TextStyle buttonText = TextStyle(
