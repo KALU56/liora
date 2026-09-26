@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/dependencies/app_dependencies.dart';
 import '../../../../core/routes/app_routes.dart';
+import '../../../../core/theme/accent_palette.dart';
+import '../../../../core/theme/accent_color_scope.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/color_contrast.dart';
 import '../../notes/application/notes_use_cases.dart';
 import '../../notes/domain/models/note_model.dart';
 import '../../notes/domain/models/note_page.dart';
@@ -104,12 +107,56 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _showAccentPicker() async {
+    final accentScope = AccentColorScope.of(context);
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Choose an accent'),
+        content: Wrap(
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.md,
+          children: AccentPalette.options.map((accent) {
+            final name = accent.name;
+            final color = accent.color;
+            final isSelected = accentScope.accentColor == color;
+            return Tooltip(
+              message: name,
+              child: InkWell(
+                key: Key('accent_swatch_${name.toLowerCase()}'),
+                customBorder: const CircleBorder(),
+                onTap: () {
+                  accentScope.onAccentChanged(color);
+                  Navigator.of(dialogContext).pop();
+                },
+                child: CircleAvatar(
+                  radius: 22,
+                  backgroundColor: color,
+                  child: isSelected
+                      ? Icon(
+                          Icons.check,
+                          color: ColorContrast.readableForeground(color),
+                          size: 18,
+                        )
+                      : null,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredNotes = _notes.searchNotes(_searchQuery);
 
+    final notesAreEmpty = _notes.notes.isEmpty;
+
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 72,
         title: _isSearching
             ? TextField(
                 key: const Key('search_notes_field'),
@@ -127,9 +174,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   });
                 },
               )
-            : const Text(AppConstants.appName),
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(AppConstants.appName),
+                  Text(
+                    'A little room for your ideas',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
         centerTitle: false,
         actions: [
+          IconButton(
+            key: const Key('accent_color_button'),
+            icon: const Icon(Icons.palette_outlined),
+            tooltip: 'Choose accent color',
+            onPressed: _showAccentPicker,
+          ),
           IconButton(
             key: const Key('toggle_search_button'),
             icon: Icon(_isSearching ? Icons.close : Icons.search),
@@ -146,68 +209,101 @@ class _HomeScreenState extends State<HomeScreen> {
             },
             tooltip: _isSearching ? 'Close Search' : 'Search Notes',
           ),
-          IconButton(
-            key: const Key('toggle_view_button'),
-            icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view),
-            onPressed: () {
-              setState(() {
-                _isGridView = !_isGridView;
-              });
-            },
-            tooltip: _isGridView ? 'Switch to List' : 'Switch to Grid',
+        ],
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 22, 24, 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Your library',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        notesAreEmpty
+                            ? 'A calm place to gather your thoughts.'
+                            : '${filteredNotes.length} ${filteredNotes.length == 1 ? 'notebook' : 'notebooks'}',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!notesAreEmpty)
+                  IconButton.filledTonal(
+                    key: const Key('toggle_view_button'),
+                    tooltip: _isGridView ? 'Switch to List' : 'Switch to Grid',
+                    onPressed: () => setState(() => _isGridView = !_isGridView),
+                    icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view),
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: notesAreEmpty
+                ? EmptyLibraryView(onCreateNote: _onCreateNote)
+                : filteredNotes.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: AppSpacing.paddingLg,
+                      child: Text(
+                        'No notes found matching "$_searchQuery"',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ),
+                  )
+                : _isGridView
+                ? GridView.builder(
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.78,
+                          crossAxisSpacing: AppSpacing.md,
+                          mainAxisSpacing: AppSpacing.md,
+                        ),
+                    itemCount: filteredNotes.length,
+                    itemBuilder: (context, index) {
+                      final note = filteredNotes[index];
+                      return NoteCard(
+                        key: Key('note_card_${note.id}'),
+                        note: note,
+                        isGrid: true,
+                        onTap: () => _onOpenNote(note),
+                        onRename: () => _onRenameNote(note),
+                        onDelete: () => _onDeleteNote(note),
+                      );
+                    },
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                    itemCount: filteredNotes.length,
+                    separatorBuilder: (context, index) => AppSpacing.gapMd,
+                    itemBuilder: (context, index) {
+                      final note = filteredNotes[index];
+                      return NoteCard(
+                        key: Key('note_card_${note.id}'),
+                        note: note,
+                        isGrid: false,
+                        onTap: () => _onOpenNote(note),
+                        onRename: () => _onRenameNote(note),
+                        onDelete: () => _onDeleteNote(note),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
-      body: _notes.notes.isEmpty
-          ? EmptyLibraryView(onCreateNote: _onCreateNote)
-          : filteredNotes.isEmpty
-          ? Center(
-              child: Padding(
-                padding: AppSpacing.paddingLg,
-                child: Text(
-                  'No notes found matching "$_searchQuery"',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ),
-            )
-          : _isGridView
-          ? GridView.builder(
-              padding: AppSpacing.paddingLg,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.8,
-                crossAxisSpacing: AppSpacing.md,
-                mainAxisSpacing: AppSpacing.md,
-              ),
-              itemCount: filteredNotes.length,
-              itemBuilder: (context, index) {
-                final note = filteredNotes[index];
-                return NoteCard(
-                  key: Key('note_card_${note.id}'),
-                  note: note,
-                  isGrid: true,
-                  onTap: () => _onOpenNote(note),
-                  onRename: () => _onRenameNote(note),
-                  onDelete: () => _onDeleteNote(note),
-                );
-              },
-            )
-          : ListView.separated(
-              padding: AppSpacing.paddingLg,
-              itemCount: filteredNotes.length,
-              separatorBuilder: (context, index) => AppSpacing.gapMd,
-              itemBuilder: (context, index) {
-                final note = filteredNotes[index];
-                return NoteCard(
-                  key: Key('note_card_${note.id}'),
-                  note: note,
-                  isGrid: false,
-                  onTap: () => _onOpenNote(note),
-                  onRename: () => _onRenameNote(note),
-                  onDelete: () => _onDeleteNote(note),
-                );
-              },
-            ),
       floatingActionButton: FloatingActionButton(
         key: const Key('create_note_fab'),
         onPressed: _onCreateNote,
