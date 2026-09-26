@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 
@@ -44,9 +43,7 @@ class EmptyLibraryView extends StatelessWidget {
             Text(
               'Create your first notebook to start writing, drawing, and organizing your thoughts.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.brightness == Brightness.light
-                    ? AppColors.lightTextSecondary
-                    : AppColors.darkTextSecondary,
+                color: theme.colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
