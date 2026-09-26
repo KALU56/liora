@@ -23,6 +23,7 @@ class NoteRepository implements NotesRepository {
   int _idCounter = 0;
   bool _isInitialized = false;
 
+  @override
   List<NoteModel> get notes => List.unmodifiable(_notes);
   bool get isInitialized => _isInitialized;
 
@@ -45,6 +46,7 @@ class NoteRepository implements NotesRepository {
     }
   }
 
+  @override
   NoteModel createNote({String? title, List<NotePage>? pages}) {
     final now = DateTime.now();
     _idCounter++;
@@ -69,6 +71,7 @@ class NoteRepository implements NotesRepository {
     return newNote;
   }
 
+  @override
   bool updateNote(NoteModel updatedNote) {
     final index = _notes.indexWhere((n) => n.id == updatedNote.id);
     if (index != -1) {
@@ -79,6 +82,7 @@ class NoteRepository implements NotesRepository {
     return false;
   }
 
+  @override
   bool renameNote(String id, String newTitle) {
     final index = _notes.indexWhere((n) => n.id == id);
     if (index != -1) {
@@ -95,6 +99,7 @@ class NoteRepository implements NotesRepository {
     return false;
   }
 
+  @override
   bool deleteNote(String id) {
     final initialLength = _notes.length;
     _notes.removeWhere((note) => note.id == id);
@@ -103,6 +108,7 @@ class NoteRepository implements NotesRepository {
     return didDelete;
   }
 
+  @override
   List<NoteModel> searchNotes(String query) {
     if (query.trim().isEmpty) return List.unmodifiable(_notes);
     final cleanQuery = query.trim().toLowerCase();
@@ -111,6 +117,7 @@ class NoteRepository implements NotesRepository {
         .toList();
   }
 
+  @override
   NoteModel? getNoteById(String id) {
     try {
       return _notes.firstWhere((note) => note.id == id);
