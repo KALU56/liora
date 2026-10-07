@@ -9,7 +9,6 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/color_contrast.dart';
 import '../../notes/application/notes_use_cases.dart';
 import '../../notes/domain/models/note_model.dart';
-import '../../notes/domain/models/note_page.dart';
 import '../../notes/domain/repositories/notes_repository.dart';
 import '../../notes/presentation/widgets/delete_note_dialog.dart';
 import '../../notes/presentation/widgets/note_card.dart';
@@ -50,37 +49,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onCreateNote() async {
-    final result = await Navigator.of(context).pushNamed(AppRoutes.editor);
-    if (result != null && result is Map<String, dynamic>) {
-      final title = result['title'] as String?;
-      setState(() {
-        final note = _notes.createNote(title: title);
-        final pages = result['pages'];
-        if (pages is List<NotePage>) {
-          _notes.updateNote(note.copyWith(pages: pages));
-        }
-      });
-    }
+    await Navigator.of(context).pushNamed(AppRoutes.editor);
+    if (mounted) setState(() {});
   }
 
   void _onOpenNote(NoteModel note) async {
-    final result = await Navigator.of(context)
-        .pushNamed(AppRoutes.editor, arguments: note);
-    if (result != null && result is Map<String, dynamic>) {
-      final updatedTitle = result['title'] as String?;
-      final pages = result['pages'];
-      if (updatedTitle != null || pages is List<NotePage>) {
-        setState(() {
-          final currentNote = _notes.getNoteById(note.id) ?? note;
-          _notes.updateNote(
-            currentNote.copyWith(
-              title: updatedTitle ?? currentNote.title,
-              pages: pages is List<NotePage> ? pages : currentNote.pages,
-            ),
-          );
-        });
-      }
-    }
+    await Navigator.of(context).pushNamed(AppRoutes.editor, arguments: note);
+    if (mounted) setState(() {});
   }
 
   void _onRenameNote(NoteModel note) async {

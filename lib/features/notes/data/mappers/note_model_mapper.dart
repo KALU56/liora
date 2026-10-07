@@ -8,10 +8,18 @@ import '../../../canvas/domain/models/point_2d.dart';
 import '../../../paper/domain/models/paper_template.dart';
 import '../../domain/models/note_model.dart';
 import '../../domain/models/note_page.dart';
+import '../../domain/models/note_text_block.dart';
 
 /// Maps domain objects to the persisted data representation.
 class NoteModelMapper {
   const NoteModelMapper();
+
+  ShapeType? _optionalShapeType(Object? value) {
+    for (final shape in ShapeType.values) {
+      if (shape.name == value) return shape;
+    }
+    return null;
+  }
 
   Map<String, dynamic> noteToMap(NoteModel note) {
     return {
@@ -49,6 +57,9 @@ class NoteModelMapper {
       'paperTemplate': paperToMap(page.paperTemplate),
       'strokes': page.strokes.map(strokeToMap).toList(),
       'toolConfig': toolToMap(page.toolConfig),
+      'textItems': page.textItems,
+      'textBlocks': page.textBlocks.map(textBlockToMap).toList(),
+      'attachments': page.attachments,
     };
   }
 
@@ -70,8 +81,41 @@ class NoteModelMapper {
       toolConfig: map['toolConfig'] is Map
           ? toolFromMap(Map<String, dynamic>.from(map['toolConfig'] as Map))
           : const ToolConfig(),
+      textItems: (map['textItems'] as List?)?.whereType<String>().toList(),
+      textBlocks: (map['textBlocks'] as List?)
+          ?.whereType<Map>()
+          .map((item) => textBlockFromMap(Map<String, dynamic>.from(item)))
+          .toList(),
+      attachments: (map['attachments'] as List?)?.whereType<String>().toList(),
     );
   }
+
+  Map<String, dynamic> textBlockToMap(NoteTextBlock block) => {
+    'text': block.text,
+    'fontFamily': block.fontFamily,
+    'fontSize': block.fontSize,
+    'bold': block.bold,
+    'italic': block.italic,
+    'alignment': block.alignment.name,
+    'colorValue': block.colorValue,
+    'x': block.x,
+    'y': block.y,
+  };
+
+  NoteTextBlock textBlockFromMap(Map<String, dynamic> map) => NoteTextBlock(
+    text: map['text'] as String? ?? '',
+    fontFamily: map['fontFamily'] as String? ?? 'Roboto',
+    fontSize: (map['fontSize'] as num?)?.toDouble() ?? 18,
+    bold: map['bold'] as bool? ?? false,
+    italic: map['italic'] as bool? ?? false,
+    alignment: TextAlign.values.firstWhere(
+      (alignment) => alignment.name == map['alignment'],
+      orElse: () => TextAlign.left,
+    ),
+    colorValue: (map['colorValue'] as num?)?.toInt() ?? 0xFF202124,
+    x: (map['x'] as num?)?.toDouble() ?? 24,
+    y: (map['y'] as num?)?.toDouble() ?? 24,
+  );
 
   Map<String, dynamic> strokeToMap(Stroke stroke) {
     return {
@@ -82,6 +126,7 @@ class NoteModelMapper {
       'toolType': stroke.toolType.name,
       'opacity': stroke.opacity,
       'isComplete': stroke.isComplete,
+      'shapeType': stroke.shapeType?.name,
     };
   }
 
@@ -103,6 +148,7 @@ class NoteModelMapper {
       ),
       opacity: (map['opacity'] as num?)?.toDouble() ?? 1.0,
       isComplete: map['isComplete'] as bool? ?? false,
+      shapeType: _optionalShapeType(map['shapeType']),
     );
   }
 
@@ -135,6 +181,7 @@ class NoteModelMapper {
       'strokeWidth': tool.strokeWidth,
       'opacity': tool.opacity,
       'eraserSize': tool.eraserSize.name,
+      'shapeType': tool.shapeType.name,
     };
   }
 
@@ -150,6 +197,10 @@ class NoteModelMapper {
       eraserSize: EraserSize.values.firstWhere(
         (size) => size.name == map['eraserSize'],
         orElse: () => EraserSize.small,
+      ),
+      shapeType: ShapeType.values.firstWhere(
+        (shape) => shape.name == map['shapeType'],
+        orElse: () => ShapeType.rectangle,
       ),
     );
   }

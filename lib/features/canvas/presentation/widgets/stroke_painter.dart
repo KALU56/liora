@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../domain/models/stroke.dart';
@@ -38,6 +40,11 @@ class StrokePainter extends CustomPainter {
   void _drawStroke(Canvas canvas, Stroke stroke) {
     if (stroke.points.isEmpty) return;
 
+    if (stroke.shapeType != null && stroke.points.length > 1) {
+      _drawShape(canvas, stroke);
+      return;
+    }
+
     final path = _pathBuilder.build(stroke);
 
     switch (stroke.toolType) {
@@ -56,6 +63,47 @@ class StrokePainter extends CustomPainter {
       case WritingToolType.pen:
         _drawPenStroke(canvas, path, stroke);
         break;
+      case WritingToolType.shape:
+        _drawPenStroke(canvas, path, stroke);
+        break;
+    }
+  }
+
+  void _drawShape(Canvas canvas, Stroke stroke) {
+    final start = stroke.points.first.position;
+    final end = stroke.points.last.position;
+    final rect = Rect.fromPoints(
+      Offset(start.x, start.y),
+      Offset(end.x, end.y),
+    );
+    final paint = Paint()
+      ..color = Color(stroke.color.value).withValues(alpha: stroke.opacity)
+      ..strokeWidth = stroke.strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..isAntiAlias = true;
+    switch (stroke.shapeType!) {
+      case ShapeType.line:
+        canvas.drawLine(Offset(start.x, start.y), Offset(end.x, end.y), paint);
+      case ShapeType.rectangle:
+        canvas.drawRect(rect, paint);
+      case ShapeType.oval:
+        canvas.drawOval(rect, paint);
+      case ShapeType.arrow:
+        canvas.drawLine(Offset(start.x, start.y), Offset(end.x, end.y), paint);
+        final direction = Offset(end.x - start.x, end.y - start.y);
+        final angle = direction.direction;
+        final wingLength = (stroke.strokeWidth * 4).clamp(10.0, 22.0);
+        final wing1 = Offset(
+          end.x - wingLength * math.cos(angle - 0.45),
+          end.y - wingLength * math.sin(angle - 0.45),
+        );
+        final wing2 = Offset(
+          end.x - wingLength * math.cos(angle + 0.45),
+          end.y - wingLength * math.sin(angle + 0.45),
+        );
+        canvas.drawLine(Offset(end.x, end.y), wing1, paint);
+        canvas.drawLine(Offset(end.x, end.y), wing2, paint);
     }
   }
 

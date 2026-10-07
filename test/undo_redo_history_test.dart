@@ -15,6 +15,8 @@ void main() {
       (WidgetTester tester) async {
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('handwriting_tool_button')));
+        await tester.pumpAndSettle();
 
         // Perform stroke 1
         final canvasFinder = find.byKey(
@@ -45,6 +47,8 @@ void main() {
       'Test 43 — Redo Writing: Undone stroke action returns cleanly',
       (WidgetTester tester) async {
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('handwriting_tool_button')));
         await tester.pumpAndSettle();
 
         // Perform stroke

@@ -6,11 +6,13 @@ import '../../domain/models/writing_tool.dart';
 class WritingToolsToolbar extends StatelessWidget {
   final ToolConfig activeConfig;
   final ValueChanged<ToolConfig> onConfigChanged;
+  final bool vertical;
 
   const WritingToolsToolbar({
     super.key,
     required this.activeConfig,
     required this.onConfigChanged,
+    this.vertical = false,
   });
 
   void _selectTool(WritingToolType toolType) {
@@ -61,6 +63,9 @@ class WritingToolsToolbar extends StatelessWidget {
       case WritingToolType.eraser:
         newConfig = activeConfig.copyWith(toolType: WritingToolType.eraser);
         break;
+      case WritingToolType.shape:
+        newConfig = activeConfig.copyWith(toolType: WritingToolType.shape);
+        break;
     }
     onConfigChanged(newConfig);
   }
@@ -71,6 +76,7 @@ class WritingToolsToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (vertical) return _buildVertical(context);
     return Card(
       elevation: 4,
       margin: const EdgeInsets.all(8.0),
@@ -84,28 +90,39 @@ class WritingToolsToolbar extends StatelessWidget {
             children: [
               // Tool Selector Buttons
               _buildToolButton(
+                context: context,
                 key: const Key('tool_pen'),
                 icon: Icons.edit,
                 label: 'Pen',
                 toolType: WritingToolType.pen,
               ),
               _buildToolButton(
+                context: context,
                 key: const Key('tool_pencil'),
                 icon: Icons.mode_edit_outline,
                 label: 'Pencil',
                 toolType: WritingToolType.pencil,
               ),
               _buildToolButton(
+                context: context,
                 key: const Key('tool_highlighter'),
                 icon: Icons.highlight,
                 label: 'Highlighter',
                 toolType: WritingToolType.highlighter,
               ),
               _buildToolButton(
+                context: context,
                 key: const Key('tool_eraser'),
                 icon: Icons.auto_fix_high,
                 label: 'Eraser',
                 toolType: WritingToolType.eraser,
+              ),
+              _buildToolButton(
+                context: context,
+                key: const Key('tool_shape'),
+                icon: Icons.category_outlined,
+                label: 'Shapes',
+                toolType: WritingToolType.shape,
               ),
 
               const VerticalDivider(width: 16, indent: 8, endIndent: 8),
@@ -114,11 +131,31 @@ class WritingToolsToolbar extends StatelessWidget {
               if (activeConfig.toolType == WritingToolType.eraser)
                 _buildEraserControls()
               else ...[
-                _buildColorPicker(),
+                if (activeConfig.toolType == WritingToolType.shape)
+                  DropdownButton<ShapeType>(
+                    key: const Key('shape_type_selector'),
+                    value: activeConfig.shapeType,
+                    items: ShapeType.values
+                        .map(
+                          (shape) => DropdownMenuItem(
+                            value: shape,
+                            child: Text(shape.name),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (shape) {
+                      if (shape != null) {
+                        onConfigChanged(
+                          activeConfig.copyWith(shapeType: shape),
+                        );
+                      }
+                    },
+                  ),
+                _buildColorPicker(context),
                 const SizedBox(width: 8),
-                _buildThicknessSelector(),
+                _buildThicknessSelector(context),
                 const SizedBox(width: 8),
-                _buildOpacitySelector(),
+                _buildOpacitySelector(context),
                 const SizedBox(width: 8),
                 _buildPresetsDropdown(),
               ],
@@ -129,7 +166,167 @@ class WritingToolsToolbar extends StatelessWidget {
     );
   }
 
+  Widget _buildVertical(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: SizedBox(
+        width: 76,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildToolButton(
+                context: context,
+                key: const Key('tool_pen'),
+                icon: Icons.edit,
+                label: 'Pen',
+                toolType: WritingToolType.pen,
+              ),
+              _buildToolButton(
+                context: context,
+                key: const Key('tool_pencil'),
+                icon: Icons.mode_edit_outline,
+                label: 'Pencil',
+                toolType: WritingToolType.pencil,
+              ),
+              _buildToolButton(
+                context: context,
+                key: const Key('tool_highlighter'),
+                icon: Icons.highlight,
+                label: 'Highlighter',
+                toolType: WritingToolType.highlighter,
+              ),
+              _buildToolButton(
+                context: context,
+                key: const Key('tool_eraser'),
+                icon: Icons.auto_fix_high,
+                label: 'Eraser',
+                toolType: WritingToolType.eraser,
+              ),
+              _buildToolButton(
+                context: context,
+                key: const Key('tool_shape'),
+                icon: Icons.category_outlined,
+                label: 'Shapes',
+                toolType: WritingToolType.shape,
+              ),
+              const Divider(height: 8),
+              if (activeConfig.toolType == WritingToolType.eraser) ...[
+                ChoiceChip(
+                  key: const Key('eraser_size_small'),
+                  label: const Text('S'),
+                  selected: activeConfig.eraserSize == EraserSize.small,
+                  onSelected: (_) => onConfigChanged(
+                    activeConfig.copyWith(eraserSize: EraserSize.small),
+                  ),
+                ),
+                ChoiceChip(
+                  key: const Key('eraser_size_large'),
+                  label: const Text('L'),
+                  selected: activeConfig.eraserSize == EraserSize.large,
+                  onSelected: (_) => onConfigChanged(
+                    activeConfig.copyWith(eraserSize: EraserSize.large),
+                  ),
+                ),
+              ] else ...[
+                if (activeConfig.toolType == WritingToolType.shape)
+                  PopupMenuButton<ShapeType>(
+                    key: const Key('shape_type_selector'),
+                    tooltip: 'Choose shape',
+                    icon: const Icon(Icons.change_history),
+                    onSelected: (shape) => onConfigChanged(
+                      activeConfig.copyWith(shapeType: shape),
+                    ),
+                    itemBuilder: (context) => ShapeType.values
+                        .map(
+                          (shape) => PopupMenuItem(
+                            value: shape,
+                            child: Text(shape.name),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ...[
+                  (Colors.black, 'color_picker_black'),
+                  (Colors.blue, 'color_picker_blue'),
+                  (Colors.red, 'color_picker_red'),
+                  (Colors.green, 'color_picker_green'),
+                  (const Color(0xFFFFEB3B), 'color_picker_yellow'),
+                ].map(
+                  (item) => GestureDetector(
+                    key: Key(item.$2),
+                    onTap: () => onConfigChanged(
+                      activeConfig.copyWith(
+                        color: ArgbColor(item.$1.toARGB32()),
+                      ),
+                    ),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: item.$1,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: activeConfig.color.value == item.$1.toARGB32()
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.outlineVariant,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                RotatedBox(
+                  quarterTurns: 3,
+                  child: SizedBox(
+                    width: 112,
+                    height: 28,
+                    child: Slider(
+                      key: const Key('thickness_slider'),
+                      value: activeConfig.strokeWidth.clamp(1, 32),
+                      min: 1,
+                      max: 32,
+                      onChanged: (value) => onConfigChanged(
+                        activeConfig.copyWith(strokeWidth: value),
+                      ),
+                    ),
+                  ),
+                ),
+                RotatedBox(
+                  quarterTurns: 3,
+                  child: SizedBox(
+                    width: 92,
+                    height: 28,
+                    child: Slider(
+                      key: const Key('opacity_slider'),
+                      value: activeConfig.opacity.clamp(0.1, 1),
+                      min: 0.1,
+                      max: 1,
+                      onChanged: (value) => onConfigChanged(
+                        activeConfig.copyWith(opacity: value),
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  key: const Key('preset_fine_pen'),
+                  tooltip: 'Fine pen',
+                  icon: const Icon(Icons.line_weight),
+                  onPressed: () => _applyPreset(
+                    ToolConfig.defaultPen.copyWith(strokeWidth: 1.5),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildToolButton({
+    required BuildContext context,
     required Key key,
     required IconData icon,
     required String label,
@@ -141,10 +338,13 @@ class WritingToolsToolbar extends StatelessWidget {
       child: IconButton(
         key: key,
         icon: Icon(icon),
-        color: isSelected ? Colors.blue : Colors.grey[700],
+        color: isSelected
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurfaceVariant,
         style: isSelected
             ? IconButton.styleFrom(
-                backgroundColor: Colors.blue.withValues(alpha: 0.15),
+                backgroundColor: Theme.of(context).colorScheme.primary
+                    .withValues(alpha: 0.15),
               )
             : null,
         onPressed: () => _selectTool(toolType),
@@ -152,7 +352,7 @@ class WritingToolsToolbar extends StatelessWidget {
     );
   }
 
-  Widget _buildColorPicker() {
+  Widget _buildColorPicker(BuildContext context) {
     final colors = [
       (Colors.black, 'color_picker_black'),
       (Colors.blue, 'color_picker_blue'),
@@ -184,7 +384,9 @@ class WritingToolsToolbar extends StatelessWidget {
                 color: color,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? Colors.blue : Colors.grey[400]!,
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.outlineVariant,
                   width: isSelected ? 2.5 : 1.0,
                 ),
               ),
@@ -195,11 +397,15 @@ class WritingToolsToolbar extends StatelessWidget {
     );
   }
 
-  Widget _buildThicknessSelector() {
+  Widget _buildThicknessSelector(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.line_weight, size: 18, color: Colors.grey),
+        Icon(
+          Icons.line_weight,
+          size: 18,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
         SizedBox(
           width: 90,
           child: Slider(
@@ -216,11 +422,15 @@ class WritingToolsToolbar extends StatelessWidget {
     );
   }
 
-  Widget _buildOpacitySelector() {
+  Widget _buildOpacitySelector(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.opacity, size: 18, color: Colors.grey),
+        Icon(
+          Icons.opacity,
+          size: 18,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
         SizedBox(
           width: 80,
           child: Slider(

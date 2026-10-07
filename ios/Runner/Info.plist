@@ -26,6 +26,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Record audio notes on your pages.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Convert your spoken words into note text.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Add photos to your notes.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

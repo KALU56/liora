@@ -9,6 +9,11 @@ import 'package:notability_clone/features/canvas/domain/services/eraser_service.
 import 'package:notability_clone/features/canvas/presentation/widgets/handwriting_canvas_widget.dart';
 import 'package:notability_clone/features/library/presentation/new_note_screen.dart';
 
+Future<void> _openWritingTools(WidgetTester tester) async {
+  await tester.tap(find.byKey(const Key('pen_tool_button')));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   group('Issue #5 — Digital Writing Tools QA Gate', () {
     testWidgets(
@@ -17,7 +22,12 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
-        expect(find.byKey(const Key('tool_pen')), findsOneWidget);
+        await _openWritingTools(tester);
+
+        final canvas = tester.widget<HandwritingCanvasWidget>(
+          find.byType(HandwritingCanvasWidget),
+        );
+        expect(canvas.toolConfig.toolType, WritingToolType.pen);
         await tester.tap(find.byKey(const Key('tool_pen')));
         await tester.pumpAndSettle();
 
@@ -48,6 +58,8 @@ void main() {
       (WidgetTester tester) async {
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
+
+        await _openWritingTools(tester);
 
         // Select Blue color
         await tester.tap(find.byKey(const Key('color_picker_blue')));
@@ -99,7 +111,10 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
+        await _openWritingTools(tester);
+
         // Select Fine Pen preset
+        await tester.ensureVisible(find.byKey(const Key('preset_fine_pen')));
         await tester.tap(find.byKey(const Key('preset_fine_pen')));
         await tester.pumpAndSettle();
 
@@ -126,6 +141,8 @@ void main() {
       (WidgetTester tester) async {
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
+
+        await _openWritingTools(tester);
 
         // Select Pencil tool
         await tester.tap(find.byKey(const Key('tool_pencil')));
@@ -158,11 +175,15 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
+        await _openWritingTools(tester);
+
         // Tap Pencil
         await tester.tap(find.byKey(const Key('tool_pencil')));
         await tester.pumpAndSettle();
 
         // Tap Pen
+        await tester.tap(find.byKey(const Key('pen_tool_button')));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(const Key('tool_pen')));
         await tester.pumpAndSettle();
 
@@ -189,6 +210,8 @@ void main() {
       (WidgetTester tester) async {
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
+
+        await _openWritingTools(tester);
 
         // Select Highlighter tool
         await tester.tap(find.byKey(const Key('tool_highlighter')));
@@ -247,13 +270,19 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
+        await _openWritingTools(tester);
         await tester.tap(find.byKey(const Key('tool_highlighter')));
         await tester.pumpAndSettle();
 
+        await tester.tap(find.byKey(const Key('pen_tool_button')));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(const Key('tool_pen')));
         await tester.pumpAndSettle();
 
-        expect(find.byKey(const Key('tool_pen')), findsOneWidget);
+        final canvas = tester.widget<HandwritingCanvasWidget>(
+          find.byType(HandwritingCanvasWidget),
+        );
+        expect(canvas.toolConfig.toolType, WritingToolType.pen);
       },
     );
 
@@ -263,8 +292,13 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
+        await _openWritingTools(tester);
+
         // Tap Eraser tool
         await tester.tap(find.byKey(const Key('tool_eraser')));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(const Key('pen_tool_button')));
         await tester.pumpAndSettle();
 
         expect(find.byKey(const Key('eraser_size_small')), findsOneWidget);
@@ -331,6 +365,10 @@ void main() {
       (WidgetTester tester) async {
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
+        await _openWritingTools(tester);
+
+        await tester.tap(find.byKey(const Key('tool_pen')));
+        await tester.pumpAndSettle();
 
         // Draw a stroke first
         final canvasFinder = find.byKey(
@@ -349,6 +387,8 @@ void main() {
         expect(canvasWidget.strokes.length, equals(1));
 
         // Select Eraser tool
+        await tester.tap(find.byKey(const Key('pen_tool_button')));
+        await tester.pumpAndSettle();
         await tester.tap(find.byKey(const Key('tool_eraser')));
         await tester.pumpAndSettle();
 

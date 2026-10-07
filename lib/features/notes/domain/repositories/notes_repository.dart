@@ -2,6 +2,8 @@ import '../models/note_model.dart';
 import '../models/note_page.dart';
 
 abstract interface class NotesRepository {
+  Future<void> flush();
+
   List<NoteModel> get notes;
 
   NoteModel createNote({String? title, List<NotePage>? pages});

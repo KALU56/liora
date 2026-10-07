@@ -132,6 +132,7 @@ class NoteRepository implements NotesRepository {
   }
 
   /// Allows lifecycle handlers and tests to wait until all queued writes finish.
+  @override
   Future<void> flush() => _writeQueue;
 
   Future<void> clearPersistedData() async {

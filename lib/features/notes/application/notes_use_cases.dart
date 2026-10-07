@@ -7,6 +7,8 @@ class NotesUseCases {
 
   final NotesRepository repository;
 
+  Future<void> flush() => repository.flush();
+
   List<NoteModel> get notes => repository.notes;
 
   NoteModel createNote({String? title, List<NotePage>? pages}) {

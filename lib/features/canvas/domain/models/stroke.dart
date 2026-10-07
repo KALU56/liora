@@ -11,6 +11,7 @@ class Stroke {
   final WritingToolType toolType;
   final double opacity;
   final bool isComplete;
+  final ShapeType? shapeType;
 
   Stroke({
     required this.id,
@@ -20,6 +21,7 @@ class Stroke {
     this.toolType = WritingToolType.pen,
     this.opacity = 1.0,
     this.isComplete = false,
+    this.shapeType,
   }) : points = points ?? [];
 
   Stroke copyWith({
@@ -30,6 +32,7 @@ class Stroke {
     WritingToolType? toolType,
     double? opacity,
     bool? isComplete,
+    ShapeType? shapeType,
   }) {
     return Stroke(
       id: id ?? this.id,
@@ -39,6 +42,7 @@ class Stroke {
       toolType: toolType ?? this.toolType,
       opacity: opacity ?? this.opacity,
       isComplete: isComplete ?? this.isComplete,
+      shapeType: shapeType ?? this.shapeType,
     );
   }
 }

@@ -1,10 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:notability_clone/core/routes/app_routes.dart';
 import 'package:notability_clone/core/theme/accent_palette.dart';
 import 'package:notability_clone/core/theme/app_theme.dart';
 import 'package:notability_clone/core/theme/color_contrast.dart';
+import 'package:notability_clone/features/library/presentation/home_screen.dart';
+import 'package:notability_clone/features/library/presentation/new_note_screen.dart';
+import 'package:notability_clone/features/notes/data/repositories/note_repository.dart';
+import 'package:notability_clone/features/notes/data/repositories/note_storage.dart';
 import 'package:notability_clone/features/notes/presentation/widgets/note_card.dart';
 import 'package:notability_clone/main.dart';
+
+class _MemoryNoteStorage implements NoteStorage {
+  String? value;
+
+  @override
+  Future<void> clear() async => value = null;
+
+  @override
+  Future<String?> read() async => value;
+
+  @override
+  Future<void> write(String value) async => this.value = value;
+}
 
 void main() {
   group('Issue #1 — Foundation Library & App Launch QA Gate', () {
@@ -88,30 +106,39 @@ void main() {
       await tester.tap(find.byKey(const Key('create_note_fab')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Create New Note'), findsOneWidget);
-      expect(find.text('Note Title'), findsOneWidget);
-      expect(
-        find.byKey(const Key('submit_create_note_button')),
-        findsOneWidget,
-      );
+      expect(find.text('Untitled Note'), findsOneWidget);
+      expect(find.byKey(const Key('editor_more_button')), findsOneWidget);
+      expect(find.byKey(const Key('submit_create_note_button')), findsNothing);
     });
 
     testWidgets(
       'Test 4 — Library Display: Newly created note appears immediately in the library list',
       (WidgetTester tester) async {
-        await tester.pumpWidget(const PaperNoteApp());
+        final repository = NoteRepository(storage: _MemoryNoteStorage());
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.lightTheme(),
+            home: HomeScreen(repository: repository),
+            routes: {
+              AppRoutes.editor: (_) => NewNoteScreen(repository: repository),
+            },
+          ),
+        );
         await tester.pumpAndSettle();
 
         // Open new note creation
         await tester.tap(find.byKey(const Key('create_first_note_button')));
         await tester.pumpAndSettle();
 
-        // Enter title
+        // Change the title from the app bar.
+        await tester.tap(find.byKey(const Key('editor_title')));
+        await tester.pumpAndSettle();
         await tester.enterText(find.byType(TextField), 'Biology Chapter 1');
+        await tester.tap(find.text('Done'));
         await tester.pumpAndSettle();
 
-        // Submit creation
-        await tester.tap(find.byKey(const Key('submit_create_note_button')));
+        // Leaving the editor saves the note automatically.
+        await tester.tap(find.byTooltip('Back'));
         await tester.pumpAndSettle();
 
         // Verify empty library state is gone and new note appears in list

@@ -19,7 +19,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify NewNoteScreen is displayed.
-    expect(find.text('Create New Note'), findsOneWidget);
-    expect(find.text('Note Title'), findsOneWidget);
+    expect(find.text('Untitled Note'), findsOneWidget);
+    expect(find.byKey(const Key('text_tool_button')), findsOneWidget);
+    expect(find.byKey(const Key('editor_more_button')), findsOneWidget);
   });
 }

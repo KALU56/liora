@@ -14,6 +14,9 @@ class HandwritingCanvasWidget extends StatefulWidget {
   final List<Stroke> strokes;
   final ValueChanged<List<Stroke>>? onStrokesChanged;
   final ValueChanged<CanvasAction>? onActionRecorded;
+  final ValueChanged<Offset>? onCanvasTapDown;
+  final ValueChanged<Offset>? onCanvasPointerMove;
+  final ValueChanged<Offset>? onCanvasPointerUp;
   final bool isDrawingMode;
   final ToolConfig toolConfig;
   final Color currentColor;
@@ -26,6 +29,9 @@ class HandwritingCanvasWidget extends StatefulWidget {
     required this.strokes,
     this.onStrokesChanged,
     this.onActionRecorded,
+    this.onCanvasTapDown,
+    this.onCanvasPointerMove,
+    this.onCanvasPointerUp,
     this.isDrawingMode = true,
     this.toolConfig = const ToolConfig(),
     this.currentColor = Colors.black,
@@ -76,7 +82,10 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
   }
 
   void _onPointerDown(PointerDownEvent event) {
-    if (!widget.isDrawingMode) return;
+    if (!widget.isDrawingMode) {
+      widget.onCanvasTapDown?.call(event.localPosition);
+      return;
+    }
 
     final config = _effectiveConfig;
 
@@ -101,12 +110,18 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
         strokeWidth: config.strokeWidth,
         toolType: config.toolType,
         opacity: config.opacity,
+        shapeType: config.toolType == WritingToolType.shape
+            ? config.shapeType
+            : null,
       );
     });
   }
 
   void _onPointerMove(PointerMoveEvent event) {
-    if (!widget.isDrawingMode) return;
+    if (!widget.isDrawingMode) {
+      widget.onCanvasPointerMove?.call(event.localPosition);
+      return;
+    }
 
     final config = _effectiveConfig;
 
@@ -129,7 +144,10 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
   }
 
   void _onPointerUp(PointerUpEvent event) {
-    if (!widget.isDrawingMode) return;
+    if (!widget.isDrawingMode) {
+      widget.onCanvasPointerUp?.call(event.localPosition);
+      return;
+    }
 
     final config = _effectiveConfig;
 
@@ -235,7 +253,11 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
 
     return Listener(
       key: const Key('handwriting_touch_listener'),
-      behavior: widget.isDrawingMode
+      behavior:
+          widget.isDrawingMode ||
+              widget.onCanvasTapDown != null ||
+              widget.onCanvasPointerMove != null ||
+              widget.onCanvasPointerUp != null
           ? HitTestBehavior.opaque
           : HitTestBehavior.deferToChild,
       onPointerDown: _onPointerDown,
@@ -247,13 +269,15 @@ class _HandwritingCanvasWidgetState extends State<HandwritingCanvasWidget> {
         children: [
           if (widget.child != null) widget.child!,
           Positioned.fill(
-            child: CustomPaint(
-              key: const Key('stroke_canvas_paint'),
-              painter: StrokePainter(
-                strokes: _internalStrokes,
-                activeStroke: _activeStroke,
-                eraserPosition: _eraserPosition,
-                eraserRadius: radius,
+            child: IgnorePointer(
+              child: CustomPaint(
+                key: const Key('stroke_canvas_paint'),
+                painter: StrokePainter(
+                  strokes: _internalStrokes,
+                  activeStroke: _activeStroke,
+                  eraserPosition: _eraserPosition,
+                  eraserRadius: radius,
+                ),
               ),
             ),
           ),

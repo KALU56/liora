@@ -8,6 +8,7 @@ import 'package:notability_clone/features/canvas/domain/models/writing_tool.dart
 import 'package:notability_clone/features/notes/data/repositories/note_repository.dart';
 import 'package:notability_clone/features/notes/data/repositories/note_storage.dart';
 import 'package:notability_clone/features/notes/domain/models/note_page.dart';
+import 'package:notability_clone/features/notes/domain/models/note_text_block.dart';
 import 'package:notability_clone/features/paper/domain/models/paper_template.dart';
 
 class _MemoryNoteStorage implements NoteStorage {
@@ -54,6 +55,21 @@ void main() {
           id: 'page-1',
           paperTemplate: const PaperTemplate(pattern: PaperPattern.ruled),
           strokes: [firstStroke],
+          textItems: const ['Lecture notes'],
+          textBlocks: const [
+            NoteTextBlock(
+              text: 'Lecture notes',
+              fontFamily: 'serif',
+              fontSize: 24,
+              bold: true,
+              italic: true,
+              alignment: TextAlign.center,
+              colorValue: 0xFF486581,
+              x: 80,
+              y: 120,
+            ),
+          ],
+          attachments: const ['/documents/audio-note.m4a'],
           toolConfig: const ToolConfig(
             toolType: WritingToolType.highlighter,
             color: ArgbColor(0xAA3366FF),
@@ -115,6 +131,19 @@ void main() {
       );
       expect(restored.pages.first.toolConfig.strokeWidth, 7.25);
       expect(restored.pages.first.toolConfig.opacity, 0.35);
+      expect(restored.pages.first.textItems, ['Lecture notes']);
+      expect(restored.pages.first.textBlocks.single.fontFamily, 'serif');
+      expect(restored.pages.first.textBlocks.single.fontSize, 24);
+      expect(restored.pages.first.textBlocks.single.bold, isTrue);
+      expect(restored.pages.first.textBlocks.single.italic, isTrue);
+      expect(
+        restored.pages.first.textBlocks.single.alignment,
+        TextAlign.center,
+      );
+      expect(restored.pages.first.textBlocks.single.colorValue, 0xFF486581);
+      expect(restored.pages.first.textBlocks.single.x, 80);
+      expect(restored.pages.first.textBlocks.single.y, 120);
+      expect(restored.pages.first.attachments, ['/documents/audio-note.m4a']);
     },
   );
 }
