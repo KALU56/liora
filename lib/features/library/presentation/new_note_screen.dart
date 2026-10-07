@@ -10,7 +10,6 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/dependencies/app_dependencies.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../canvas/application/canvas_use_cases.dart';
 import '../../canvas/domain/models/argb_color.dart';
 import '../../canvas/domain/models/writing_tool.dart';
@@ -976,7 +975,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
       _EditorPopover.expanded => _buildExpandedPopover(),
     };
     return Material(
-      key: ValueKey(popover),
+      key: ValueKey('active_editor_popover_${popover.name}'),
       color: Theme.of(context).colorScheme.surface,
       elevation: 8,
       shadowColor: Theme.of(context).colorScheme.shadow.withValues(alpha: .14),
@@ -1238,9 +1237,8 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
         ? 'Untitled Note'
         : _titleController.text.trim();
     final page = _currentPage;
-    final accent = Theme.of(context).colorScheme.primary;
     return Theme(
-      data: AppTheme.lightTheme(accent: accent),
+      data: Theme.of(context),
       child: Builder(
         builder: (context) => Scaffold(
           appBar: AppBar(
