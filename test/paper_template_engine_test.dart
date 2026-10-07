@@ -1,12 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:notability_clone/core/domain/value_objects/argb_color.dart';
+import 'package:notability_clone/core/theme/app_colors.dart';
+import 'package:notability_clone/core/theme/app_theme.dart';
 import 'package:notability_clone/features/library/presentation/new_note_screen.dart';
 import 'package:notability_clone/features/paper/domain/models/paper_template.dart';
 import 'package:notability_clone/features/paper/presentation/widgets/paper_canvas_widget.dart';
+import 'package:notability_clone/features/paper/presentation/widgets/paper_customization_sheet.dart';
 
 void main() {
   group('Issue #3 — Paper Template Engine & Customization QA Gate', () {
+    testWidgets('paper customization surface follows dark theme', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.lightTheme(),
+          darkTheme: AppTheme.darkTheme(),
+          themeMode: ThemeMode.dark,
+          home: Scaffold(
+            body: PaperCustomizationSheet(
+              initialTemplate: const PaperTemplate(),
+              onTemplateChanged: (_) {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final sheet = tester.widget<Container>(
+        find.byKey(const Key('paper_customization_sheet')),
+      );
+      expect((sheet.decoration! as BoxDecoration).color, AppColors.darkSurface);
+      expect(
+        Theme.of(tester.element(find.text('Paper Settings')))
+            .colorScheme
+            .onSurface,
+        AppColors.darkTextPrimary,
+      );
+    });
+
     testWidgets(
       'Test 9 — Blank Paper: Plain background renders without lines or dots',
       (WidgetTester tester) async {
