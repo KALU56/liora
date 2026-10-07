@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -12,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/dependencies/app_dependencies.dart';
 import '../../canvas/application/canvas_use_cases.dart';
 import '../../canvas/domain/models/argb_color.dart';
+import '../../canvas/domain/models/stroke.dart';
 import '../../canvas/domain/models/writing_tool.dart';
 import '../../canvas/presentation/widgets/handwriting_canvas_widget.dart';
 import '../../notes/application/notes_use_cases.dart';
@@ -24,7 +26,7 @@ import '../../paper/domain/models/paper_template.dart';
 import '../../paper/presentation/widgets/paper_canvas_widget.dart';
 import '../../paper/presentation/widgets/paper_customization_sheet.dart';
 
-enum _EditorPopover { content, pen, expanded }
+enum _EditorPopover { content, pen, expanded, text, stroke }
 
 /// The note editor used for both a new note and an existing saved note.
 /// Each page owns its canvas data, paper template, and tool configuration.
@@ -60,6 +62,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
   bool _speechInitialized = false;
   _EditorPopover? _activePopover;
   int? _selectedTextIndex;
+  String? _selectedStrokeId;
   int? _editingTextIndex;
   Offset? _inlineTextPosition;
   int? _draggingTextIndex;
@@ -262,8 +265,320 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
               position.dy.clamp(12, pageSize.height - 120).toDouble(),
             );
       _editingTextIndex = hitIndex;
+      _selectedTextIndex = hitIndex;
       _textController.text = selectedBlock?.text ?? '';
     });
+  }
+
+  int? _hitTestTextBlock(Offset position) {
+    final pageSize = _currentPage.paperTemplate.pageSize;
+    for (var index = _currentPage.textBlocks.length - 1; index >= 0; index--) {
+      final block = _currentPage.textBlocks[index];
+      final availableWidth = pageSize.width - block.x;
+      final estimatedWidth = (block.text.length * block.fontSize * .65)
+          .clamp(1, 350)
+          .toDouble();
+      final width = estimatedWidth < availableWidth
+          ? estimatedWidth
+          : availableWidth;
+      if (Rect.fromLTWH(
+        block.x,
+        block.y,
+        width,
+        block.fontSize * 2.2,
+      ).contains(position)) {
+        return index;
+      }
+    }
+    return null;
+  }
+
+  bool _interceptCanvasPointerDown(Offset position) {
+    if (_currentPage.toolConfig.toolType == WritingToolType.eraser) {
+      return false;
+    }
+    if (_isPenMode) {
+      final textIndex = _hitTestTextBlock(position);
+      if (textIndex != null) {
+        setState(() {
+          _isTextMode = true;
+          _isPenMode = false;
+          _selectedTextIndex = textIndex;
+          _selectedStrokeId = null;
+          _activePopover = _EditorPopover.text;
+        });
+        _beginCanvasTextInput(position);
+        return true;
+      }
+    }
+    final stroke = _hitTestStroke(position);
+    if (stroke == null) return false;
+    setState(() {
+      _selectedStrokeId = stroke.id;
+      _selectedTextIndex = null;
+      _activePopover = _EditorPopover.stroke;
+    });
+    return true;
+  }
+
+  Stroke? _hitTestStroke(Offset position) {
+    for (final stroke in _currentPage.strokes.reversed) {
+      if (stroke.points.isEmpty) continue;
+      final tolerance = math.max(14.0, stroke.strokeWidth + 8);
+      if (stroke.shapeType != null && stroke.points.length > 1) {
+        final first = stroke.points.first.position;
+        final last = stroke.points.last.position;
+        if (Rect.fromPoints(
+          Offset(first.x, first.y),
+          Offset(last.x, last.y),
+        ).inflate(tolerance).contains(position)) {
+          return stroke;
+        }
+        continue;
+      }
+      if (stroke.points.length == 1) {
+        final point = stroke.points.single.position;
+        if ((position - Offset(point.x, point.y)).distance <= tolerance) {
+          return stroke;
+        }
+        continue;
+      }
+      for (var index = 1; index < stroke.points.length; index++) {
+        final previous = stroke.points[index - 1].position;
+        final current = stroke.points[index].position;
+        final start = Offset(previous.x, previous.y);
+        final end = Offset(current.x, current.y);
+        final segment = end - start;
+        final denominator = segment.distanceSquared;
+        final ratio = denominator == 0
+            ? 0.0
+            : ((position - start).dx * segment.dx +
+                      (position - start).dy * segment.dy) /
+                  denominator;
+        final projected = start + segment * ratio.clamp(0.0, 1.0);
+        if ((position - projected).distance <= tolerance) return stroke;
+      }
+    }
+    return null;
+  }
+
+  void _updateSelectedTextBlock(NoteTextBlock Function(NoteTextBlock) update) {
+    final index = _selectedTextIndex;
+    if (index == null || index >= _currentPage.textBlocks.length) return;
+    final blocks = List<NoteTextBlock>.from(_currentPage.textBlocks);
+    blocks[index] = update(blocks[index]);
+    _replaceCurrentPage(_currentPage.copyWith(textBlocks: blocks));
+  }
+
+  Widget _buildTextPopover() {
+    final index = _selectedTextIndex;
+    if (index == null || index >= _currentPage.textBlocks.length) {
+      return const SizedBox.shrink();
+    }
+    final block = _currentPage.textBlocks[index];
+    final textColors = <int>[
+      0xFF202124,
+      0xFF2196F3,
+      0xFFF44336,
+      0xFF4CAF50,
+      0xFF8E44AD,
+    ];
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Text style',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
+            IconButton(
+              tooltip: 'Close text controls',
+              onPressed: () => setState(() => _activePopover = null),
+              icon: const Icon(Icons.close),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            const Text('Size'),
+            Expanded(
+              child: Slider(
+                key: const Key('text_size_slider'),
+                value: block.fontSize.clamp(12, 48),
+                min: 12,
+                max: 48,
+                onChanged: (value) => _updateSelectedTextBlock(
+                  (item) => item.copyWith(fontSize: value),
+                ),
+              ),
+            ),
+            DropdownButton<String>(
+              key: const Key('text_font_selector'),
+              value:
+                  const [
+                    'Roboto',
+                    'serif',
+                    'monospace',
+                  ].contains(block.fontFamily)
+                  ? block.fontFamily
+                  : 'Roboto',
+              items: const ['Roboto', 'serif', 'monospace']
+                  .map(
+                    (font) => DropdownMenuItem(value: font, child: Text(font)),
+                  )
+                  .toList(),
+              onChanged: (font) {
+                if (font != null) {
+                  _updateSelectedTextBlock(
+                    (item) => item.copyWith(fontFamily: font),
+                  );
+                }
+              },
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            IconButton(
+              key: const Key('text_bold_button'),
+              tooltip: 'Bold',
+              isSelected: block.bold,
+              onPressed: () => _updateSelectedTextBlock(
+                (item) => item.copyWith(bold: !item.bold),
+              ),
+              icon: const Icon(Icons.format_bold),
+            ),
+            IconButton(
+              key: const Key('text_italic_button'),
+              tooltip: 'Italic',
+              isSelected: block.italic,
+              onPressed: () => _updateSelectedTextBlock(
+                (item) => item.copyWith(italic: !item.italic),
+              ),
+              icon: const Icon(Icons.format_italic),
+            ),
+            ...textColors.map(
+              (value) => IconButton(
+                key: Key('text_color_$value'),
+                tooltip: 'Text color',
+                onPressed: () => _updateSelectedTextBlock(
+                  (item) => item.copyWith(colorValue: value),
+                ),
+                icon: Icon(Icons.circle, color: Color(value), size: 22),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _updateSelectedStroke(Stroke Function(Stroke) update) {
+    final selectedId = _selectedStrokeId;
+    if (selectedId == null) return;
+    final strokes = List<Stroke>.from(_currentPage.strokes);
+    final index = strokes.indexWhere((stroke) => stroke.id == selectedId);
+    if (index < 0) return;
+    strokes[index] = update(strokes[index]);
+    _replaceCurrentPage(_currentPage.copyWith(strokes: strokes));
+  }
+
+  Widget _buildStrokePopover() {
+    final selectedId = _selectedStrokeId;
+    final index = _currentPage.strokes.indexWhere(
+      (stroke) => stroke.id == selectedId,
+    );
+    if (index < 0) return const SizedBox.shrink();
+    final stroke = _currentPage.strokes[index];
+    const colors = <int>[
+      0xFF202124,
+      0xFF2196F3,
+      0xFFF44336,
+      0xFF4CAF50,
+      0xFFFFEB3B,
+    ];
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                stroke.shapeType?.name ?? 'Stroke style',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+            ),
+            IconButton(
+              tooltip: 'Close stroke controls',
+              onPressed: () => setState(() => _activePopover = null),
+              icon: const Icon(Icons.close),
+            ),
+          ],
+        ),
+        Wrap(
+          spacing: 4,
+          children: colors
+              .map(
+                (value) => IconButton(
+                  key: Key('stroke_color_$value'),
+                  tooltip: 'Stroke color',
+                  onPressed: () => _updateSelectedStroke(
+                    (item) => item.copyWith(color: ArgbColor(value)),
+                  ),
+                  icon: Icon(Icons.circle, color: Color(value)),
+                ),
+              )
+              .toList(),
+        ),
+        Row(
+          children: [
+            const Text('Width'),
+            Expanded(
+              child: Slider(
+                key: const Key('selected_stroke_width_slider'),
+                value: stroke.strokeWidth.clamp(1, 32),
+                min: 1,
+                max: 32,
+                onChanged: (value) => _updateSelectedStroke(
+                  (item) => item.copyWith(strokeWidth: value),
+                ),
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            const Text('Opacity'),
+            Expanded(
+              child: Slider(
+                key: const Key('selected_stroke_opacity_slider'),
+                value: stroke.opacity.clamp(.1, 1),
+                min: .1,
+                max: 1,
+                onChanged: (value) => _updateSelectedStroke(
+                  (item) => item.copyWith(opacity: value),
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (stroke.shapeType != null &&
+            stroke.shapeType != ShapeType.line &&
+            stroke.shapeType != ShapeType.arrow)
+          CheckboxListTile(
+            key: const Key('selected_shape_fill_toggle'),
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Fill shape'),
+            value: stroke.filled,
+            onChanged: (filled) => _updateSelectedStroke(
+              (item) => item.copyWith(filled: filled ?? false),
+            ),
+          ),
+      ],
+    );
   }
 
   void _moveTextBlock(int index, Offset delta) {
@@ -318,6 +633,15 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
     final index = _draggingTextIndex;
     if (index != null && _textDragDelta.distance > 2) {
       _moveTextBlock(index, _textDragDelta);
+    } else if (index != null) {
+      final block = _currentPage.textBlocks[index];
+      setState(() {
+        _isTextMode = true;
+        _isPenMode = false;
+        _selectedTextIndex = index;
+        _activePopover = _EditorPopover.text;
+      });
+      _beginCanvasTextInput(Offset(block.x, block.y));
     }
     _draggingTextIndex = null;
     _lastTextPointerPosition = null;
@@ -973,6 +1297,8 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
       ),
       _EditorPopover.pen => _buildPenPopover(),
       _EditorPopover.expanded => _buildExpandedPopover(),
+      _EditorPopover.text => _buildTextPopover(),
+      _EditorPopover.stroke => _buildStrokePopover(),
     };
     return Material(
       key: ValueKey('active_editor_popover_${popover.name}'),
@@ -998,6 +1324,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
       (WritingToolType.highlighter, Icons.highlight, 'tool_highlighter'),
       (WritingToolType.eraser, Icons.auto_fix_normal, 'tool_eraser'),
       (WritingToolType.shape, Icons.crop_16_9_outlined, 'tool_shape'),
+      (WritingToolType.ruler, Icons.straighten, 'tool_ruler'),
     ];
     final colors = <(int, String)>[
       (0xFF202124, 'color_picker_black'),
@@ -1063,18 +1390,32 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
             ],
           ),
         if (config.toolType == WritingToolType.shape)
-          DropdownButton<ShapeType>(
-            key: const Key('shape_type_selector'),
-            value: config.shapeType,
-            items: ShapeType.values
-                .map(
-                  (shape) =>
-                      DropdownMenuItem(value: shape, child: Text(shape.name)),
-                )
-                .toList(),
-            onChanged: (shape) {
-              if (shape != null) update(config.copyWith(shapeType: shape));
-            },
+          Column(
+            children: [
+              DropdownButton<ShapeType>(
+                key: const Key('shape_type_selector'),
+                value: config.shapeType,
+                items: ShapeType.values
+                    .map(
+                      (shape) => DropdownMenuItem(
+                        value: shape,
+                        child: Text(shape.name),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (shape) {
+                  if (shape != null) update(config.copyWith(shapeType: shape));
+                },
+              ),
+              CheckboxListTile(
+                key: const Key('shape_fill_toggle'),
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Fill shape'),
+                value: config.filled,
+                onChanged: (filled) =>
+                    update(config.copyWith(filled: filled ?? false)),
+              ),
+            ],
           ),
         if (config.toolType != WritingToolType.eraser) ...[
           Row(
@@ -1180,6 +1521,12 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
         onTap: () => _selectWritingTool(WritingToolType.shape),
       ),
       ListTile(
+        key: const Key('select_ruler_tool'),
+        leading: const Icon(Icons.straighten),
+        title: const Text('Ruler'),
+        onTap: () => _selectWritingTool(WritingToolType.ruler),
+      ),
+      ListTile(
         leading: Icon(_isRecording ? Icons.stop : Icons.mic),
         title: Text(_isRecording ? 'Stop audio recording' : 'Record audio'),
         onTap: _toggleRecording,
@@ -1207,6 +1554,7 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
         current.toolType == type ? current : ToolConfig.defaultHighlighter,
       WritingToolType.eraser => current.copyWith(toolType: type),
       WritingToolType.shape => current.copyWith(toolType: type),
+      WritingToolType.ruler => current.copyWith(toolType: type),
     };
     _replaceCurrentPage(_currentPage.copyWith(toolConfig: updated));
     setState(() {
@@ -1224,6 +1572,17 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
       ),
     );
     setState(() => _activePopover = null);
+  }
+
+  void _dismissRuler() {
+    _replaceCurrentPage(
+      _currentPage.copyWith(
+        toolConfig: _currentPage.toolConfig.copyWith(
+          toolType: WritingToolType.pen,
+        ),
+      ),
+    );
+    setState(() => _isPenMode = true);
   }
 
   void _selectPenPreset(ToolConfig config) {
@@ -1319,6 +1678,9 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                           onCanvasTapDown: !_isPenMode
                               ? _handleCanvasPointerDown
                               : null,
+                          onCanvasPointerDownIntercept:
+                              _interceptCanvasPointerDown,
+                          onRulerDismissed: _dismissRuler,
                           onCanvasPointerMove: !_isPenMode
                               ? _handleCanvasPointerMove
                               : null,
