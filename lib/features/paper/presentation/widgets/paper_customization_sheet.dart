@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/domain/value_objects/argb_color.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../domain/models/paper_template.dart';
 import 'paper_color_picker.dart';
 import 'paper_orientation_selector.dart';
@@ -61,14 +62,16 @@ class _PaperCustomizationSheetState extends State<PaperCustomizationSheet> {
     return Container(
       key: const Key('paper_customization_sheet'),
       padding: EdgeInsets.only(
-        left: 20.0,
-        right: 20.0,
-        top: 16.0,
-        bottom: MediaQuery.of(context).padding.bottom + 20.0,
+        left: AppSpacing.lg,
+        right: AppSpacing.lg,
+        top: AppSpacing.lg,
+        bottom: MediaQuery.of(context).padding.bottom + AppSpacing.lg,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.xl),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -79,22 +82,18 @@ class _PaperCustomizationSheetState extends State<PaperCustomizationSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2.0),
+                color: Theme.of(context).colorScheme.outlineVariant,
+                borderRadius: BorderRadius.circular(AppSpacing.xs),
               ),
             ),
           ),
-          const SizedBox(height: 16.0),
+          AppSpacing.gapLg,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Paper Settings',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               IconButton(
                 key: const Key('close_paper_settings_button'),
@@ -104,14 +103,14 @@ class _PaperCustomizationSheetState extends State<PaperCustomizationSheet> {
             ],
           ),
           const Divider(),
-          const SizedBox(height: 12.0),
+          AppSpacing.gapMd,
           PaperPatternSelector(
             selectedPattern: _currentTemplate.pattern,
             onPatternChanged: (pattern) {
               _updateTemplate(_currentTemplate.copyWith(pattern: pattern));
             },
           ),
-          const SizedBox(height: 20.0),
+          AppSpacing.gapLg,
           PaperColorPicker(
             selectedColor: Color(_currentTemplate.backgroundColor.value),
             onColorChanged: (color) {
@@ -122,7 +121,7 @@ class _PaperCustomizationSheetState extends State<PaperCustomizationSheet> {
               );
             },
           ),
-          const SizedBox(height: 20.0),
+          AppSpacing.gapLg,
           PaperOrientationSelector(
             selectedOrientation: _currentTemplate.orientation,
             onOrientationChanged: (orientation) {
@@ -131,22 +130,13 @@ class _PaperCustomizationSheetState extends State<PaperCustomizationSheet> {
               );
             },
           ),
-          const SizedBox(height: 24.0),
+          AppSpacing.gapXl,
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               key: const Key('apply_paper_template_button'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
               onPressed: () => Navigator.of(context).pop(_currentTemplate),
-              child: const Text(
-                'Done',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
+              child: const Text('Done'),
             ),
           ),
         ],
