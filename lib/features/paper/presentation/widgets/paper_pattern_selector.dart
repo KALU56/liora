@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_spacing.dart';
 import '../../domain/models/paper_template.dart';
 import 'paper_ui_metadata.dart';
 
@@ -19,40 +20,33 @@ class PaperPatternSelector extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Paper Pattern',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8.0),
+        Text('Paper Pattern', style: Theme.of(context).textTheme.titleSmall),
+        AppSpacing.gapSm,
         Row(
           children: PaperPattern.values.map((pattern) {
             final metadata = patternMetadata(pattern);
             final isSelected = pattern == selectedPattern;
             return Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
                 child: InkWell(
                   key: Key('paper_pattern_${pattern.name}'),
                   onTap: () => onPatternChanged(pattern),
-                  borderRadius: BorderRadius.circular(8.0),
+                  borderRadius: BorderRadius.circular(AppSpacing.sm),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 12.0,
-                      horizontal: 4.0,
+                      vertical: AppSpacing.md,
+                      horizontal: AppSpacing.xs,
                     ),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? Theme.of(context).primaryColor.withAlpha(25)
-                          : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8.0),
+                          ? Theme.of(context).colorScheme.primaryContainer
+                          : Theme.of(context).colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(AppSpacing.sm),
                       border: Border.all(
                         color: isSelected
-                            ? Theme.of(context).primaryColor
-                            : Colors.grey.shade300,
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.outlineVariant,
                         width: isSelected ? 2.0 : 1.0,
                       ),
                     ),
@@ -62,20 +56,19 @@ class PaperPatternSelector extends StatelessWidget {
                         Icon(
                           metadata.icon,
                           color: isSelected
-                              ? Theme.of(context).primaryColor
-                              : Colors.grey.shade700,
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
-                        const SizedBox(height: 4.0),
+                        AppSpacing.gapXs,
                         Text(
                           metadata.label,
                           style: TextStyle(
-                            fontSize: 12,
                             fontWeight: isSelected
                                 ? FontWeight.bold
                                 : FontWeight.normal,
                             color: isSelected
-                                ? Theme.of(context).primaryColor
-                                : Colors.black87,
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
