@@ -25,7 +25,7 @@ class DeleteNoteDialog extends StatelessWidget {
           key: const Key('confirm_delete_button'),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.error,
-            foregroundColor: Colors.white,
+            foregroundColor: Theme.of(context).colorScheme.onError,
           ),
           onPressed: () => Navigator.of(context).pop(true),
           child: const Text('Delete'),
