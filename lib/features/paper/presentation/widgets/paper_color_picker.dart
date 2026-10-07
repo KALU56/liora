@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/color_contrast.dart';
 import '../../domain/models/paper_template.dart';
 
 /// Palette widget for selecting paper background colors.
@@ -18,23 +20,14 @@ class PaperColorPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Paper Color',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8.0),
+        Text('Paper Color', style: Theme.of(context).textTheme.titleSmall),
+        AppSpacing.gapSm,
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
             children: PaperColorOption.presets.map((preset) {
               final isSelected = selectedColor.toARGB32() == preset.color.value;
               final presetColor = Color(preset.color.value);
-              final isDark = presetColor.computeLuminance() < 0.5;
-
               return Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: Tooltip(
@@ -44,7 +37,7 @@ class PaperColorPicker extends StatelessWidget {
                       'paper_color_${preset.name.toLowerCase().replaceAll(' ', '_')}',
                     ),
                     onTap: () => onColorChanged(presetColor),
-                    borderRadius: BorderRadius.circular(20.0),
+                    borderRadius: BorderRadius.circular(AppSpacing.xl),
                     child: Container(
                       width: 40,
                       height: 40,
@@ -54,13 +47,14 @@ class PaperColorPicker extends StatelessWidget {
                         border: Border.all(
                           color: isSelected
                               ? Theme.of(context).primaryColor
-                              : Colors.grey.shade400,
+                              : Theme.of(context).colorScheme.outlineVariant,
                           width: isSelected ? 3.0 : 1.0,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withAlpha(20),
-                            blurRadius: 4,
+                            color: Theme.of(context).colorScheme.shadow
+                                .withValues(alpha: 0.08),
+                            blurRadius: AppSpacing.sm,
                             offset: const Offset(0, 2),
                           ),
                         ],
@@ -69,7 +63,9 @@ class PaperColorPicker extends StatelessWidget {
                           ? Icon(
                               Icons.check,
                               size: 20,
-                              color: isDark ? Colors.white : Colors.black87,
+                              color: ColorContrast.readableForeground(
+                                presetColor,
+                              ),
                             )
                           : null,
                     ),
