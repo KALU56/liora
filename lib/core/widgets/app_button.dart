@@ -31,12 +31,14 @@ class AppButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (isLoading) ...[
-          const SizedBox(
+          SizedBox(
             width: 18,
             height: 18,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              color: Colors.white,
+              color: variant == AppButtonVariant.primary
+                  ? theme.colorScheme.onPrimary
+                  : theme.colorScheme.primary,
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
