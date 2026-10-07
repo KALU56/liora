@@ -12,6 +12,7 @@ class Stroke {
   final double opacity;
   final bool isComplete;
   final ShapeType? shapeType;
+  final bool filled;
 
   Stroke({
     required this.id,
@@ -22,6 +23,7 @@ class Stroke {
     this.opacity = 1.0,
     this.isComplete = false,
     this.shapeType,
+    this.filled = false,
   }) : points = points ?? [];
 
   Stroke copyWith({
@@ -33,6 +35,7 @@ class Stroke {
     double? opacity,
     bool? isComplete,
     ShapeType? shapeType,
+    bool? filled,
   }) {
     return Stroke(
       id: id ?? this.id,
@@ -43,6 +46,7 @@ class Stroke {
       opacity: opacity ?? this.opacity,
       isComplete: isComplete ?? this.isComplete,
       shapeType: shapeType ?? this.shapeType,
+      filled: filled ?? this.filled,
     );
   }
 }
