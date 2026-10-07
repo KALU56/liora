@@ -1,8 +1,8 @@
 import 'argb_color.dart';
 
-enum WritingToolType { pen, pencil, highlighter, eraser, shape }
+enum WritingToolType { pen, pencil, highlighter, eraser, shape, ruler }
 
-enum ShapeType { line, rectangle, oval, arrow }
+enum ShapeType { line, rectangle, square, oval, circle, triangle, arrow }
 
 enum EraserSize {
   small(16.0),
@@ -19,6 +19,7 @@ class ToolConfig {
   final double opacity;
   final EraserSize eraserSize;
   final ShapeType shapeType;
+  final bool filled;
 
   const ToolConfig({
     this.toolType = WritingToolType.pen,
@@ -27,6 +28,7 @@ class ToolConfig {
     this.opacity = 1.0,
     this.eraserSize = EraserSize.small,
     this.shapeType = ShapeType.rectangle,
+    this.filled = false,
   });
 
   ToolConfig copyWith({
@@ -36,6 +38,7 @@ class ToolConfig {
     double? opacity,
     EraserSize? eraserSize,
     ShapeType? shapeType,
+    bool? filled,
   }) {
     return ToolConfig(
       toolType: toolType ?? this.toolType,
@@ -44,6 +47,7 @@ class ToolConfig {
       opacity: opacity ?? this.opacity,
       eraserSize: eraserSize ?? this.eraserSize,
       shapeType: shapeType ?? this.shapeType,
+      filled: filled ?? this.filled,
     );
   }
 
