@@ -127,6 +127,7 @@ class NoteModelMapper {
       'opacity': stroke.opacity,
       'isComplete': stroke.isComplete,
       'shapeType': stroke.shapeType?.name,
+      'filled': stroke.filled,
     };
   }
 
@@ -149,6 +150,7 @@ class NoteModelMapper {
       opacity: (map['opacity'] as num?)?.toDouble() ?? 1.0,
       isComplete: map['isComplete'] as bool? ?? false,
       shapeType: _optionalShapeType(map['shapeType']),
+      filled: map['filled'] as bool? ?? false,
     );
   }
 
@@ -182,6 +184,7 @@ class NoteModelMapper {
       'opacity': tool.opacity,
       'eraserSize': tool.eraserSize.name,
       'shapeType': tool.shapeType.name,
+      'filled': tool.filled,
     };
   }
 
@@ -202,6 +205,7 @@ class NoteModelMapper {
         (shape) => shape.name == map['shapeType'],
         orElse: () => ShapeType.rectangle,
       ),
+      filled: map['filled'] as bool? ?? false,
     );
   }
 
