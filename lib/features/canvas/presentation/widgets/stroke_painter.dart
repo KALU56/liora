@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/models/stroke.dart';
 import '../../domain/models/writing_tool.dart';
+import 'ruler_geometry.dart';
 import 'stroke_path_builder.dart';
 
 /// CustomPainter that renders independent stroke objects with support for
@@ -14,12 +15,16 @@ class StrokePainter extends CustomPainter {
   final Stroke? activeStroke;
   final Offset? eraserPosition;
   final double eraserRadius;
+  final RulerGeometry? ruler;
+  final Color rulerColor;
 
   const StrokePainter({
     required this.strokes,
     this.activeStroke,
     this.eraserPosition,
     this.eraserRadius = 16.0,
+    this.ruler,
+    this.rulerColor = const Color(0xFF78856A),
   });
 
   @override
@@ -35,6 +40,8 @@ class StrokePainter extends CustomPainter {
     if (eraserPosition != null) {
       _drawEraserIndicator(canvas, eraserPosition!, eraserRadius);
     }
+
+    if (ruler != null) _drawRuler(canvas, ruler!);
   }
 
   void _drawStroke(Canvas canvas, Stroke stroke) {
@@ -64,6 +71,7 @@ class StrokePainter extends CustomPainter {
         _drawPenStroke(canvas, path, stroke);
         break;
       case WritingToolType.shape:
+      case WritingToolType.ruler:
         _drawPenStroke(canvas, path, stroke);
         break;
     }
@@ -72,24 +80,46 @@ class StrokePainter extends CustomPainter {
   void _drawShape(Canvas canvas, Stroke stroke) {
     final start = stroke.points.first.position;
     final end = stroke.points.last.position;
-    final rect = Rect.fromPoints(
-      Offset(start.x, start.y),
-      Offset(end.x, end.y),
-    );
+    var rect = Rect.fromPoints(Offset(start.x, start.y), Offset(end.x, end.y));
     final paint = Paint()
       ..color = Color(stroke.color.value).withValues(alpha: stroke.opacity)
       ..strokeWidth = stroke.strokeWidth
-      ..style = PaintingStyle.stroke
+      ..style = stroke.filled ? PaintingStyle.fill : PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..isAntiAlias = true;
     switch (stroke.shapeType!) {
       case ShapeType.line:
         canvas.drawLine(Offset(start.x, start.y), Offset(end.x, end.y), paint);
       case ShapeType.rectangle:
-        canvas.drawRect(rect, paint);
+        _drawRectShape(canvas, rect, paint, stroke.filled);
+      case ShapeType.square:
+        final side = math.min(rect.width, rect.height);
+        rect = Rect.fromLTRB(
+          rect.left,
+          rect.top,
+          rect.left + side,
+          rect.top + side,
+        );
+        _drawRectShape(canvas, rect, paint, stroke.filled);
       case ShapeType.oval:
-        canvas.drawOval(rect, paint);
+        _drawOvalShape(canvas, rect, paint, stroke.filled);
+      case ShapeType.circle:
+        final side = math.min(rect.width, rect.height);
+        final circle = Rect.fromCenter(
+          center: rect.center,
+          width: side,
+          height: side,
+        );
+        _drawOvalShape(canvas, circle, paint, stroke.filled);
+      case ShapeType.triangle:
+        final path = Path()
+          ..moveTo(rect.center.dx, rect.top)
+          ..lineTo(rect.right, rect.bottom)
+          ..lineTo(rect.left, rect.bottom)
+          ..close();
+        _drawClosedShape(canvas, path, paint, stroke.filled);
       case ShapeType.arrow:
+        paint.style = PaintingStyle.stroke;
         canvas.drawLine(Offset(start.x, start.y), Offset(end.x, end.y), paint);
         final direction = Offset(end.x - start.x, end.y - start.y);
         final angle = direction.direction;
@@ -105,6 +135,101 @@ class StrokePainter extends CustomPainter {
         canvas.drawLine(Offset(end.x, end.y), wing1, paint);
         canvas.drawLine(Offset(end.x, end.y), wing2, paint);
     }
+  }
+
+  void _drawRectShape(Canvas canvas, Rect rect, Paint paint, bool filled) {
+    if (filled) {
+      canvas.drawRect(rect, paint);
+      paint.style = PaintingStyle.stroke;
+      canvas.drawRect(rect, paint);
+    } else {
+      canvas.drawRect(rect, paint);
+    }
+  }
+
+  void _drawOvalShape(Canvas canvas, Rect rect, Paint paint, bool filled) {
+    if (filled) {
+      canvas.drawOval(rect, paint);
+      paint.style = PaintingStyle.stroke;
+      canvas.drawOval(rect, paint);
+    } else {
+      canvas.drawOval(rect, paint);
+    }
+  }
+
+  void _drawClosedShape(Canvas canvas, Path path, Paint paint, bool filled) {
+    if (filled) {
+      canvas.drawPath(path, paint);
+      paint.style = PaintingStyle.stroke;
+      canvas.drawPath(path, paint);
+    } else {
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  void _drawRuler(Canvas canvas, RulerGeometry ruler) {
+    canvas.save();
+    canvas.translate(ruler.center.dx, ruler.center.dy);
+    canvas.rotate(ruler.angle);
+
+    final body = RRect.fromRectAndRadius(
+      Rect.fromCenter(
+        center: Offset.zero,
+        width: ruler.length,
+        height: ruler.thickness,
+      ),
+      const Radius.circular(6),
+    );
+    canvas.drawRRect(
+      body,
+      Paint()
+        ..color = rulerColor.withValues(alpha: 0.16)
+        ..style = PaintingStyle.fill,
+    );
+    canvas.drawRRect(
+      body,
+      Paint()
+        ..color = rulerColor.withValues(alpha: 0.9)
+        ..strokeWidth = 1.5
+        ..style = PaintingStyle.stroke,
+    );
+
+    final tickPaint = Paint()
+      ..color = rulerColor.withValues(alpha: 0.78)
+      ..strokeWidth = 1;
+    final left = -ruler.length / 2;
+    final top = -ruler.thickness / 2;
+    for (var mark = 0; mark <= ruler.length ~/ 10; mark++) {
+      final x = left + mark * 10;
+      final tickHeight = mark % 5 == 0 ? 12.0 : 6.0;
+      canvas.drawLine(Offset(x, top), Offset(x, top + tickHeight), tickPaint);
+    }
+    canvas.drawLine(
+      Offset(left, top),
+      Offset(ruler.length / 2, top),
+      Paint()
+        ..color = rulerColor
+        ..strokeWidth = 2,
+    );
+    canvas.drawLine(
+      Offset(ruler.length / 2, 0),
+      Offset(ruler.length / 2 + 20, 0),
+      tickPaint,
+    );
+    canvas.drawCircle(
+      Offset(ruler.length / 2 + 20, 0),
+      11,
+      Paint()..color = rulerColor.withValues(alpha: 0.2),
+    );
+    canvas.drawCircle(
+      Offset(ruler.length / 2 + 20, 0),
+      11,
+      Paint()
+        ..color = rulerColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5,
+    );
+    canvas.restore();
   }
 
   void _drawPenStroke(Canvas canvas, Path path, Stroke stroke) {
@@ -185,6 +310,8 @@ class StrokePainter extends CustomPainter {
     return oldDelegate.strokes != strokes ||
         oldDelegate.activeStroke != activeStroke ||
         oldDelegate.eraserPosition != eraserPosition ||
-        oldDelegate.eraserRadius != eraserRadius;
+        oldDelegate.eraserRadius != eraserRadius ||
+        oldDelegate.ruler != ruler ||
+        oldDelegate.rulerColor != rulerColor;
   }
 }
