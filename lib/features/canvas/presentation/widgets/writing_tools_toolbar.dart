@@ -66,6 +66,9 @@ class WritingToolsToolbar extends StatelessWidget {
       case WritingToolType.shape:
         newConfig = activeConfig.copyWith(toolType: WritingToolType.shape);
         break;
+      case WritingToolType.ruler:
+        newConfig = activeConfig.copyWith(toolType: WritingToolType.ruler);
+        break;
     }
     onConfigChanged(newConfig);
   }
@@ -123,6 +126,13 @@ class WritingToolsToolbar extends StatelessWidget {
                 icon: Icons.category_outlined,
                 label: 'Shapes',
                 toolType: WritingToolType.shape,
+              ),
+              _buildToolButton(
+                context: context,
+                key: const Key('tool_ruler'),
+                icon: Icons.straighten,
+                label: 'Ruler',
+                toolType: WritingToolType.ruler,
               ),
 
               const VerticalDivider(width: 16, indent: 8, endIndent: 8),
@@ -209,6 +219,13 @@ class WritingToolsToolbar extends StatelessWidget {
                 icon: Icons.category_outlined,
                 label: 'Shapes',
                 toolType: WritingToolType.shape,
+              ),
+              _buildToolButton(
+                context: context,
+                key: const Key('tool_ruler'),
+                icon: Icons.straighten,
+                label: 'Ruler',
+                toolType: WritingToolType.ruler,
               ),
               const Divider(height: 8),
               if (activeConfig.toolType == WritingToolType.eraser) ...[
