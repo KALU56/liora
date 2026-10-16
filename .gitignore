@@ -79,3 +79,13 @@ firebase-debug.*.log
 # Temporary files
 *.bak
 *.orig
+# Widget Preview related
+.widget_preview/
+# AI Agent instructions
+AGENTS.md
+GEMINI.md
+
+# Ignore all markdown context files
+lib/context/*.md
+lib/context/**/*.md
+project.md
