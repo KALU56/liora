@@ -185,10 +185,7 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
         await tester.pumpAndSettle();
 
-        // Open Paper Settings bottom sheet
-        await tester.tap(find.byKey(const Key('editor_more_button')));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Paper settings'));
+        await tester.tap(find.byKey(const Key('paper_settings_button')));
         await tester.pumpAndSettle();
 
         expect(
@@ -263,9 +260,7 @@ void main() {
         expect(canvasWidget.template.height, equals(792.0));
 
         // Open settings and select Landscape
-        await tester.tap(find.byKey(const Key('editor_more_button')));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Paper settings'));
+        await tester.tap(find.byKey(const Key('paper_settings_button')));
         await tester.pumpAndSettle();
 
         await tester.tap(find.byKey(const Key('orientation_landscape')));
