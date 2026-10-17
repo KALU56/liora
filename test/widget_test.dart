@@ -21,6 +21,6 @@ void main() {
     // Verify NewNoteScreen is displayed.
     expect(find.text('Untitled Note'), findsOneWidget);
     expect(find.byKey(const Key('text_tool_button')), findsOneWidget);
-    expect(find.byKey(const Key('editor_more_button')), findsOneWidget);
+    expect(find.byKey(const Key('page_control_rail')), findsOneWidget);
   });
 }
