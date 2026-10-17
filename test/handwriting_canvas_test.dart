@@ -40,10 +40,7 @@ void main() {
               initialViewer.transformationController?.value ??
               Matrix4.identity();
 
-          // Tap zoom in button
-          await tester.tap(find.byKey(const Key('editor_more_button')));
-          await tester.pumpAndSettle();
-          await tester.tap(find.text('Zoom in'));
+          await tester.tap(find.byKey(const Key('zoom_in_button')));
           await tester.pumpAndSettle();
 
           final InteractiveViewer updatedViewer = tester.widget(viewerFinder);
@@ -67,9 +64,7 @@ void main() {
           final viewerFinder = find.byKey(const Key('note_interactive_viewer'));
 
           // Zoom out from initial scale
-          await tester.tap(find.byKey(const Key('editor_more_button')));
-          await tester.pumpAndSettle();
-          await tester.tap(find.text('Zoom out'));
+          await tester.tap(find.byKey(const Key('zoom_out_button')));
           await tester.pumpAndSettle();
 
           final InteractiveViewer updatedViewer = tester.widget(viewerFinder);
@@ -112,19 +107,12 @@ void main() {
           await tester.pumpAndSettle();
 
           // Zoom in twice
-          await tester.tap(find.byKey(const Key('editor_more_button')));
+          await tester.tap(find.byKey(const Key('zoom_in_button')));
           await tester.pumpAndSettle();
-          await tester.tap(find.text('Zoom in'));
-          await tester.pumpAndSettle();
-          await tester.tap(find.byKey(const Key('editor_more_button')));
-          await tester.pumpAndSettle();
-          await tester.tap(find.text('Zoom in'));
+          await tester.tap(find.byKey(const Key('zoom_in_button')));
           await tester.pumpAndSettle();
 
-          // Reset zoom
-          await tester.tap(find.byKey(const Key('editor_more_button')));
-          await tester.pumpAndSettle();
-          await tester.tap(find.text('Reset zoom'));
+          await tester.tap(find.byKey(const Key('reset_zoom_button')));
           await tester.pumpAndSettle();
 
           final viewerFinder = find.byKey(const Key('note_interactive_viewer'));
