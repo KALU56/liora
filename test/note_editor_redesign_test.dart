@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:notability_clone/core/theme/app_colors.dart';
+import 'package:notability_clone/core/theme/app_spacing.dart';
 import 'package:notability_clone/core/theme/app_theme.dart';
 import 'package:notability_clone/features/canvas/domain/models/writing_tool.dart';
 import 'package:notability_clone/features/canvas/presentation/widgets/stroke_painter.dart';
@@ -24,6 +25,112 @@ class _MemoryStorage implements NoteStorage {
 }
 
 void main() {
+  testWidgets('page controls stay beside the page and switch pages', (
+    tester,
+  ) async {
+    final repository = NoteRepository(storage: _MemoryStorage());
+    await tester.pumpWidget(
+      MaterialApp(home: NewNoteScreen(repository: repository)),
+    );
+    await tester.pumpAndSettle();
+
+    final rail = find.byKey(const Key('page_control_rail'));
+    final paper = find.byKey(const Key('paper_canvas'));
+    expect(rail, findsOneWidget);
+    expect(find.byKey(const Key('zoom_in_button')), findsOneWidget);
+    expect(find.byKey(const Key('zoom_out_button')), findsOneWidget);
+    expect(find.byKey(const Key('reset_zoom_button')), findsOneWidget);
+    expect(find.byKey(const Key('paper_settings_button')), findsOneWidget);
+    expect(find.byKey(const Key('previous_page_button')), findsOneWidget);
+    expect(find.byKey(const Key('next_page_button')), findsOneWidget);
+    expect(find.byKey(const Key('editor_more_button')), findsNothing);
+    expect(
+      tester.getSize(rail).height,
+      lessThanOrEqualTo(AppSpacing.pageControlRailMaxHeight),
+    );
+    expect(tester.getRect(paper).right, greaterThan(tester.getRect(rail).left));
+    expect(
+      tester.widget<Material>(rail).color,
+      Theme.of(tester.element(rail)).colorScheme.surface,
+    );
+    expect(
+      tester.widget<Material>(rail).elevation,
+      AppSpacing.floatingControlElevation,
+    );
+    final transformationController = tester
+        .widget<InteractiveViewer>(
+          find.byKey(const Key('note_interactive_viewer')),
+        )
+        .transformationController!;
+    await tester.tap(find.byKey(const Key('zoom_in_button')));
+    await tester.pumpAndSettle();
+    expect(
+      transformationController.value.getMaxScaleOnAxis(),
+      closeTo(1.25, .001),
+    );
+    await tester.tap(find.byKey(const Key('zoom_out_button')));
+    await tester.pumpAndSettle();
+    expect(
+      transformationController.value.getMaxScaleOnAxis(),
+      closeTo(1, .001),
+    );
+    await tester.tap(find.byKey(const Key('zoom_in_button')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('reset_zoom_button')));
+    await tester.pumpAndSettle();
+    expect(
+      transformationController.value.getMaxScaleOnAxis(),
+      closeTo(1, .001),
+    );
+    await tester.tap(find.byKey(const Key('paper_settings_button')));
+    await tester.pumpAndSettle();
+    expect(find.text('Paper Settings'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('close_paper_settings_button')));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<IconButton>(find.byKey(const Key('previous_page_button')))
+          .onPressed,
+      isNull,
+    );
+    expect(
+      tester
+          .widget<IconButton>(find.byKey(const Key('next_page_button')))
+          .onPressed,
+      isNull,
+    );
+
+    await tester.tap(find.byKey(const Key('add_page_button')));
+    await tester.pumpAndSettle();
+    expect(find.text('Page 2 of 2'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('previous_page_button')));
+    await tester.pumpAndSettle();
+    expect(find.text('Page 1 of 2'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('next_page_button')));
+    await tester.pumpAndSettle();
+    expect(find.text('Page 2 of 2'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('page control rail fits a short landscape layout', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(640, 360);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final repository = NoteRepository(storage: _MemoryStorage());
+    await tester.pumpWidget(
+      MaterialApp(home: NewNoteScreen(repository: repository)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('page_control_rail')), findsOneWidget);
+    expect(find.byKey(const Key('zoom_in_button')), findsOneWidget);
+    expect(find.byKey(const Key('next_page_button')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('title is edited in the app bar and auto-saved', (tester) async {
     final repository = NoteRepository(storage: _MemoryStorage());
     await tester.pumpWidget(
