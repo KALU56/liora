@@ -86,6 +86,7 @@ AGENTS.md
 GEMINI.md
 
 # Ignore all markdown context files
-lib/context/*.md
-lib/context/**/*.md
+/context/*.md
+/context/**/*.md
+/context
 project.md
