@@ -11,6 +11,7 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/dependencies/app_dependencies.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../canvas/application/canvas_use_cases.dart';
 import '../../canvas/domain/models/argb_color.dart';
 import '../../canvas/domain/models/stroke.dart';
@@ -973,67 +974,6 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
     Navigator.of(context).pop();
   }
 
-  void _showMoreMenu() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.zoom_in),
-              title: const Text('Zoom in'),
-              onTap: () {
-                Navigator.pop(context);
-                _zoomIn();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.zoom_out),
-              title: const Text('Zoom out'),
-              onTap: () {
-                Navigator.pop(context);
-                _zoomOut();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.center_focus_strong),
-              title: const Text('Reset zoom'),
-              onTap: () {
-                Navigator.pop(context);
-                _resetZoom();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.layers_outlined),
-              title: const Text('Paper settings'),
-              onTap: () {
-                Navigator.pop(context);
-                _openPaperCustomization();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.chevron_left),
-              title: const Text('Previous page'),
-              onTap: () {
-                Navigator.pop(context);
-                _goToPage(_currentPageIndex - 1);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.chevron_right),
-              title: const Text('Next page'),
-              onTap: () {
-                Navigator.pop(context);
-                _goToPage(_currentPageIndex + 1);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _showAddContentMenu() {
     _openPopover(_EditorPopover.content);
   }
@@ -1188,13 +1128,18 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
     final activeTool = _activePopover;
     return Material(
       color: Theme.of(context).colorScheme.surface,
-      elevation: 8,
-      shadowColor: Theme.of(context).colorScheme.shadow.withValues(alpha: .14),
-      borderRadius: BorderRadius.circular(24),
+      elevation: AppSpacing.floatingControlElevation,
+      shadowColor: Theme.of(context).colorScheme.shadow
+          .withValues(alpha: AppSpacing.floatingControlShadowAlpha),
+      borderRadius: BorderRadius.circular(
+        AppSpacing.floatingControlCornerRadius,
+      ),
       child: Container(
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.all(AppSpacing.floatingControlPadding),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(
+            AppSpacing.floatingControlCornerRadius,
+          ),
           border: Border.all(
             color: Theme.of(context).colorScheme.outlineVariant,
           ),
@@ -1635,12 +1580,6 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                 onPressed: _addPage,
                 tooltip: 'Add Page',
               ),
-              IconButton(
-                key: const Key('editor_more_button'),
-                icon: const Icon(Icons.more_vert),
-                tooltip: 'More actions',
-                onPressed: _showMoreMenu,
-              ),
             ],
           ),
           extendBodyBehindAppBar: false,
@@ -1759,6 +1698,118 @@ class _NewNoteScreenState extends State<NewNoteScreen> {
                                   ),
                                 ),
                             ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: AppSpacing.sm,
+                    right: 0,
+                    bottom: AppSpacing.xxl * 2,
+                    width: AppSpacing.pageControlRailWidth,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxHeight: AppSpacing.pageControlRailMaxHeight,
+                        ),
+                        child: Material(
+                          key: const Key('page_control_rail'),
+                          color: Theme.of(context).colorScheme.surface,
+                          elevation: AppSpacing.floatingControlElevation,
+                          shadowColor: Theme.of(context).colorScheme.shadow
+                              .withValues(
+                                alpha: AppSpacing.floatingControlShadowAlpha,
+                              ),
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.floatingControlCornerRadius,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(
+                              AppSpacing.floatingControlPadding,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.floatingControlCornerRadius,
+                              ),
+                              border: Border.all(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant,
+                              ),
+                            ),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    key: const Key('zoom_in_button'),
+                                    tooltip: 'Zoom in',
+                                    constraints: const BoxConstraints.tightFor(
+                                      width: AppSpacing.touchTarget,
+                                      height: AppSpacing.touchTarget,
+                                    ),
+                                    onPressed: _zoomIn,
+                                    icon: const Icon(Icons.zoom_in),
+                                  ),
+                                  IconButton(
+                                    key: const Key('zoom_out_button'),
+                                    tooltip: 'Zoom out',
+                                    constraints: const BoxConstraints.tightFor(
+                                      width: AppSpacing.touchTarget,
+                                      height: AppSpacing.touchTarget,
+                                    ),
+                                    onPressed: _zoomOut,
+                                    icon: const Icon(Icons.zoom_out),
+                                  ),
+                                  IconButton(
+                                    key: const Key('reset_zoom_button'),
+                                    tooltip: 'Reset zoom',
+                                    constraints: const BoxConstraints.tightFor(
+                                      width: AppSpacing.touchTarget,
+                                      height: AppSpacing.touchTarget,
+                                    ),
+                                    onPressed: _resetZoom,
+                                    icon: const Icon(Icons.center_focus_strong),
+                                  ),
+                                  IconButton(
+                                    key: const Key('paper_settings_button'),
+                                    tooltip: 'Paper settings',
+                                    constraints: const BoxConstraints.tightFor(
+                                      width: AppSpacing.touchTarget,
+                                      height: AppSpacing.touchTarget,
+                                    ),
+                                    onPressed: _openPaperCustomization,
+                                    icon: const Icon(Icons.layers_outlined),
+                                  ),
+                                  IconButton(
+                                    key: const Key('previous_page_button'),
+                                    tooltip: 'Previous page',
+                                    constraints: const BoxConstraints.tightFor(
+                                      width: AppSpacing.touchTarget,
+                                      height: AppSpacing.touchTarget,
+                                    ),
+                                    onPressed: _currentPageIndex > 0
+                                        ? () => _goToPage(_currentPageIndex - 1)
+                                        : null,
+                                    icon: const Icon(Icons.chevron_left),
+                                  ),
+                                  IconButton(
+                                    key: const Key('next_page_button'),
+                                    tooltip: 'Next page',
+                                    constraints: const BoxConstraints.tightFor(
+                                      width: AppSpacing.touchTarget,
+                                      height: AppSpacing.touchTarget,
+                                    ),
+                                    onPressed:
+                                        _currentPageIndex < _pages.length - 1
+                                        ? () => _goToPage(_currentPageIndex + 1)
+                                        : null,
+                                    icon: const Icon(Icons.chevron_right),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
