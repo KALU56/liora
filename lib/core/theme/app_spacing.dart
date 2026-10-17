@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 
 /// Centralized spacing system: 4, 8, 12, 16, 24, 32.
 abstract class AppSpacing {
+  static const double floatingControlElevation = 8.0;
+  static const double floatingControlShadowAlpha = 0.14;
+  static const double floatingControlCornerRadius = 24.0;
+  static const double floatingControlPadding = 4.0;
+  static const double pageControlRailWidth = 56.0;
+  static const double pageControlRailMaxHeight = 304.0;
+  static const double touchTarget = 48.0;
   static const double xs = 4.0;
   static const double sm = 8.0;
   static const double md = 12.0;
