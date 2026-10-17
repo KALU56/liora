@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:notability_clone/core/routes/app_routes.dart';
+import 'package:notability_clone/core/theme/accent_color_storage.dart';
 import 'package:notability_clone/core/theme/accent_palette.dart';
 import 'package:notability_clone/core/theme/app_theme.dart';
 import 'package:notability_clone/core/theme/color_contrast.dart';
@@ -12,16 +13,25 @@ import 'package:notability_clone/features/notes/presentation/widgets/note_card.d
 import 'package:notability_clone/main.dart';
 
 class _MemoryNoteStorage implements NoteStorage {
-  String? value;
+  final Map<String, (String, int)> values = {};
 
   @override
-  Future<void> clear() async => value = null;
+  Future<void> clear() async => values.clear();
 
   @override
-  Future<String?> read() async => value;
+  Future<List<String>> readNotes() async {
+    final entries = values.values.toList()
+      ..sort((first, second) => first.$2.compareTo(second.$2));
+    return entries.map((entry) => entry.$1).toList();
+  }
 
   @override
-  Future<void> write(String value) async => this.value = value;
+  Future<void> writeNote(String id, String value, int sortOrder) async {
+    values[id] = (value, sortOrder);
+  }
+
+  @override
+  Future<void> deleteNote(String id) async => values.remove(id);
 }
 
 void main() {
@@ -70,6 +80,36 @@ void main() {
         tester.element(find.byKey(const Key('create_note_fab'))),
       );
       expect(theme.colorScheme.primary, const Color(0xFF506C73));
+    });
+
+    testWidgets('Accent picker choice persists and is restored on restart', (
+      tester,
+    ) async {
+      final accentStorage = MemoryAccentColorStorage();
+      await tester.pumpWidget(PaperNoteApp(accentColorStorage: accentStorage));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('accent_color_button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('accent_swatch_ocean')));
+      await tester.pumpAndSettle();
+
+      expect(accentStorage.savedColor, const Color(0xFF506C73));
+
+      // Simulate app restart with the saved color
+      final savedColor = await accentStorage.loadAccentColor();
+      await tester.pumpWidget(
+        PaperNoteApp(
+          initialAccentColor: savedColor,
+          accentColorStorage: accentStorage,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final restoredTheme = Theme.of(
+        tester.element(find.byKey(const Key('create_note_fab'))),
+      );
+      expect(restoredTheme.colorScheme.primary, const Color(0xFF506C73));
     });
 
     test('all accent colors provide AA contrast in light and dark themes', () {

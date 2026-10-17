@@ -8,6 +8,7 @@ import '../../../../core/theme/accent_color_scope.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/color_contrast.dart';
 import '../../notes/application/notes_use_cases.dart';
+import '../../notes/data/note_attachment_storage.dart';
 import '../../notes/domain/models/note_model.dart';
 import '../../notes/domain/repositories/notes_repository.dart';
 import '../../notes/presentation/widgets/delete_note_dialog.dart';
@@ -18,8 +19,14 @@ import 'widgets/empty_library_view.dart';
 class HomeScreen extends StatefulWidget {
   final NotesRepository? repository;
   final NotesUseCases? useCases;
+  final NoteAttachmentStorage? attachmentStorage;
 
-  const HomeScreen({super.key, this.repository, this.useCases});
+  const HomeScreen({
+    super.key,
+    this.repository,
+    this.useCases,
+    this.attachmentStorage,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -27,9 +34,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final NotesUseCases _notes;
+  late final NoteAttachmentStorage _attachmentStorage;
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
   bool _isGridView = false;
+  bool _isViewingTrash = false;
   String _searchQuery = '';
 
   @override
@@ -40,6 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
         (widget.repository == null
             ? appDependencies.notes
             : NotesUseCases(widget.repository!));
+    _attachmentStorage =
+        widget.attachmentStorage ?? appDependencies.noteAttachmentStorage;
   }
 
   @override
@@ -79,6 +90,26 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _notes.deleteNote(note.id);
       });
+    }
+  }
+
+  void _onRestoreNote(NoteModel note) {
+    setState(() => _notes.restoreNote(note.id));
+  }
+
+  void _onPermanentlyDeleteNote(NoteModel note) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => DeleteNoteDialog(noteTitle: note.title),
+    );
+    if (confirmed == true && mounted) {
+      if (_notes.permanentlyDeleteNote(note.id)) {
+        await _attachmentStorage.deleteUnusedFiles(note, [
+          ..._notes.notes,
+          ..._notes.trashedNotes,
+        ]);
+      }
+      if (mounted) setState(() {});
     }
   }
 
@@ -125,9 +156,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredNotes = _notes.searchNotes(_searchQuery);
+    final filteredNotes = _isViewingTrash
+        ? _notes.trashedNotes
+        : _notes.searchNotes(_searchQuery);
 
-    final notesAreEmpty = _notes.notes.isEmpty;
+    final notesAreEmpty = _isViewingTrash
+        ? _notes.trashedNotes.isEmpty
+        : _notes.notes.isEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -199,19 +234,32 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Your library',
+                        _isViewingTrash ? 'Trash' : 'Your library',
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       const SizedBox(height: 5),
                       Text(
                         notesAreEmpty
-                            ? 'A calm place to gather your thoughts.'
+                            ? (_isViewingTrash
+                                  ? 'Deleted notes can be restored here.'
+                                  : 'A calm place to gather your thoughts.')
                             : '${filteredNotes.length} ${filteredNotes.length == 1 ? 'notebook' : 'notebooks'}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
+                  ),
+                ),
+                IconButton.filledTonal(
+                  key: const Key('toggle_trash_button'),
+                  tooltip: _isViewingTrash ? 'Back to library' : 'Open trash',
+                  onPressed: () =>
+                      setState(() => _isViewingTrash = !_isViewingTrash),
+                  icon: Icon(
+                    _isViewingTrash
+                        ? Icons.library_books
+                        : Icons.delete_outline,
                   ),
                 ),
                 if (!notesAreEmpty)
@@ -226,7 +274,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Expanded(
             child: notesAreEmpty
-                ? EmptyLibraryView(onCreateNote: _onCreateNote)
+                ? _isViewingTrash
+                      ? const Center(child: Text('Trash is empty'))
+                      : EmptyLibraryView(onCreateNote: _onCreateNote)
                 : filteredNotes.isEmpty
                 ? Center(
                     child: Padding(
@@ -257,6 +307,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () => _onOpenNote(note),
                         onRename: () => _onRenameNote(note),
                         onDelete: () => _onDeleteNote(note),
+                        isTrashed: _isViewingTrash,
+                        onRestore: () => _onRestoreNote(note),
+                        onPermanentlyDelete: () =>
+                            _onPermanentlyDeleteNote(note),
                       );
                     },
                   )
@@ -273,6 +327,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () => _onOpenNote(note),
                         onRename: () => _onRenameNote(note),
                         onDelete: () => _onDeleteNote(note),
+                        isTrashed: _isViewingTrash,
+                        onRestore: () => _onRestoreNote(note),
+                        onPermanentlyDelete: () =>
+                            _onPermanentlyDeleteNote(note),
                       );
                     },
                   ),

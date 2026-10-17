@@ -30,6 +30,7 @@ class NoteModelMapper {
       'modifiedDate': note.modifiedDate.toIso8601String(),
       'createdDate': note.createdDate.toIso8601String(),
       'thumbnailPath': note.thumbnailPath,
+      'isTrashed': note.isTrashed,
     };
   }
 
@@ -48,6 +49,7 @@ class NoteModelMapper {
       modifiedDate: DateTime.parse(map['modifiedDate'] as String),
       createdDate: DateTime.parse(map['createdDate'] as String),
       thumbnailPath: map['thumbnailPath'] as String?,
+      isTrashed: map['isTrashed'] as bool? ?? false,
     );
   }
 

@@ -1,17 +1,87 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:notability_clone/features/library/presentation/home_screen.dart';
 import 'package:notability_clone/features/notes/data/repositories/note_repository.dart';
+import 'package:notability_clone/features/notes/data/repositories/note_storage.dart';
 import 'package:notability_clone/features/notes/domain/models/note_model.dart';
+import 'package:notability_clone/features/notes/domain/models/note_page.dart';
+import 'package:notability_clone/features/notes/domain/models/note_text_block.dart';
+
+class _MemoryNoteStorage implements NoteStorage {
+  final Map<String, (String, int)> _values = {};
+
+  @override
+  Future<void> clear() async => _values.clear();
+
+  @override
+  Future<List<String>> readNotes() async {
+    final entries = _values.values.toList()
+      ..sort((first, second) => first.$2.compareTo(second.$2));
+    return entries.map((entry) => entry.$1).toList();
+  }
+
+  @override
+  Future<void> writeNote(String id, String value, int sortOrder) async {
+    if (!_values.containsKey(id)) {
+      for (final entry in _values.entries.toList()) {
+        if (entry.value.$2 >= sortOrder) {
+          _values[entry.key] = (entry.value.$1, entry.value.$2 + 1);
+        }
+      }
+    }
+    _values[id] = (value, sortOrder);
+  }
+
+  @override
+  Future<void> deleteNote(String id) async => _values.remove(id);
+}
 
 void main() {
   late NoteRepository repository;
 
   setUp(() {
-    repository = NoteRepository();
+    SharedPreferences.setMockInitialValues({});
+    repository = NoteRepository(storage: _MemoryNoteStorage());
   });
 
   group('Issue #2 — Note Management & Title Search QA Gate', () {
+    test('content search finds page text and attachment names', () {
+      repository.createNote(
+        title: 'Untitled',
+        pages: [
+          NotePage(
+            id: 'page',
+            textBlocks: const [NoteTextBlock(text: 'cell biology')],
+            attachments: const ['/notes/lab-results.pdf'],
+          ),
+        ],
+      );
+
+      expect(repository.searchNotes('biology'), hasLength(1));
+      expect(repository.searchNotes('results.pdf'), hasLength(1));
+      expect(repository.searchNotes('astronomy'), isEmpty);
+    });
+
+    testWidgets('a trashed note can be restored from the library', (
+      tester,
+    ) async {
+      final note = repository.createNote(title: 'Restore me');
+      repository.deleteNote(note.id);
+      await tester.pumpWidget(
+        MaterialApp(home: HomeScreen(repository: repository)),
+      );
+      await tester.tap(find.byKey(const Key('toggle_trash_button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(Key('note_menu_${note.id}')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Restore'));
+      await tester.pumpAndSettle();
+
+      expect(repository.notes.single.id, note.id);
+      expect(repository.trashedNotes, isEmpty);
+    });
+
     testWidgets(
       'Test 5 — Rename Note: Renaming updates title in Library and Editor',
       (WidgetTester tester) async {
@@ -115,8 +185,8 @@ void main() {
         await tester.tap(find.byKey(Key('note_menu_${note2.id}')));
         await tester.pumpAndSettle();
 
-        // Tap delete
-        await tester.tap(find.text('Delete'));
+        // Move the note to trash
+        await tester.tap(find.text('Move to trash'));
         await tester.pumpAndSettle();
 
         // Confirm delete dialog

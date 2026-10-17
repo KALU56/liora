@@ -12,16 +12,25 @@ import 'package:notability_clone/features/notes/data/repositories/note_repositor
 import 'package:notability_clone/features/notes/data/repositories/note_storage.dart';
 
 class _MemoryStorage implements NoteStorage {
-  String? value;
+  final Map<String, (String, int)> values = {};
 
   @override
-  Future<void> clear() async => value = null;
+  Future<void> clear() async => values.clear();
 
   @override
-  Future<String?> read() async => value;
+  Future<List<String>> readNotes() async {
+    final entries = values.values.toList()
+      ..sort((first, second) => first.$2.compareTo(second.$2));
+    return entries.map((entry) => entry.$1).toList();
+  }
 
   @override
-  Future<void> write(String value) async => this.value = value;
+  Future<void> writeNote(String id, String value, int sortOrder) async {
+    values[id] = (value, sortOrder);
+  }
+
+  @override
+  Future<void> deleteNote(String id) async => values.remove(id);
 }
 
 void main() {

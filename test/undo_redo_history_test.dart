@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:notability_clone/features/canvas/domain/models/canvas_action.dart';
 import 'package:notability_clone/features/canvas/domain/models/point_2d.dart';
 import 'package:notability_clone/features/canvas/domain/models/stroke.dart';
@@ -9,7 +10,20 @@ import 'package:notability_clone/features/canvas/presentation/widgets/handwritin
 import 'package:notability_clone/features/library/presentation/new_note_screen.dart';
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   group('Issue #6 — Undo & Redo History System QA Gate', () {
+    test('stroke restyling is reversible', () {
+      final history = CanvasHistoryManager();
+      final original = Stroke(id: 'style', strokeWidth: 2);
+      final restyled = original.copyWith(strokeWidth: 8);
+      history.recordAction(UpdateStrokeAction(original, restyled));
+
+      final undone = history.undo([restyled]);
+      expect(undone.single.strokeWidth, 2);
+      final redone = history.redo(undone);
+      expect(redone.single.strokeWidth, 8);
+    });
+
     testWidgets(
       'Test 42 — Undo Writing: Last stroke action disappears cleanly',
       (WidgetTester tester) async {

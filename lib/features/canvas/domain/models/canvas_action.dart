@@ -58,3 +58,29 @@ class ClearCanvasAction extends CanvasAction {
     return currentStrokes.where((s) => !clearedIds.contains(s.id)).toList();
   }
 }
+
+/// Command representing a change to the appearance of one existing stroke.
+class UpdateStrokeAction extends CanvasAction {
+  final Stroke previousStroke;
+  final Stroke updatedStroke;
+
+  UpdateStrokeAction(this.previousStroke, this.updatedStroke);
+
+  @override
+  List<Stroke> executeUndo(List<Stroke> currentStrokes) =>
+      _replaceStroke(currentStrokes, previousStroke);
+
+  @override
+  List<Stroke> executeRedo(List<Stroke> currentStrokes) =>
+      _replaceStroke(currentStrokes, updatedStroke);
+
+  List<Stroke> _replaceStroke(List<Stroke> currentStrokes, Stroke replacement) {
+    final index = currentStrokes.indexWhere(
+      (stroke) => stroke.id == replacement.id,
+    );
+    if (index < 0) return currentStrokes;
+    final strokes = List<Stroke>.from(currentStrokes);
+    strokes[index] = replacement;
+    return strokes;
+  }
+}

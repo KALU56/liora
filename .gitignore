@@ -85,8 +85,5 @@ firebase-debug.*.log
 AGENTS.md
 GEMINI.md
 
-# Ignore all markdown context files
-/context/*.md
-/context/**/*.md
-/context
+# Project context is intentionally tracked.
 project.md

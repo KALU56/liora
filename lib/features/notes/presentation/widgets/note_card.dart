@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/models/note_model.dart';
+import 'note_page_thumbnail.dart';
 
 class NoteCard extends StatelessWidget {
   final NoteModel note;
@@ -9,6 +10,9 @@ class NoteCard extends StatelessWidget {
   final VoidCallback onRename;
   final VoidCallback onDelete;
   final bool isGrid;
+  final bool isTrashed;
+  final VoidCallback? onRestore;
+  final VoidCallback? onPermanentlyDelete;
 
   const NoteCard({
     super.key,
@@ -17,6 +21,9 @@ class NoteCard extends StatelessWidget {
     required this.onRename,
     required this.onDelete,
     this.isGrid = false,
+    this.isTrashed = false,
+    this.onRestore,
+    this.onPermanentlyDelete,
   });
 
   String _formatDate(DateTime date) {
@@ -41,57 +48,18 @@ class NoteCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Thumbnail Preview Placeholder
               Expanded(
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
-                  color: theme.colorScheme.primary.withValues(
-                    alpha: isDark ? 0.13 : 0.08,
-                  ),
-                  child: Center(
-                    child: Container(
-                      width: 76,
-                      height: 96,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurface : Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(
-                              alpha: isDark ? 0.16 : 0.08,
-                            ),
-                            blurRadius: 14,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
+                  child: note.pages.isEmpty
+                      ? ColoredBox(
+                          color: theme.colorScheme.surfaceContainerHighest,
+                          child: Icon(
                             Icons.description_outlined,
-                            size: 27,
                             color: theme.colorScheme.primary,
                           ),
-                          const SizedBox(height: 10),
-                          for (var line = 0; line < 3; line++)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 4),
-                              child: Container(
-                                height: 2,
-                                width: line == 2 ? 28 : 46,
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.onSurfaceVariant
-                                      .withValues(alpha: 0.22),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
+                        )
+                      : NotePageThumbnail(page: note.pages.first),
                 ),
               ),
               Padding(
@@ -127,7 +95,10 @@ class NoteCard extends StatelessWidget {
                       icon: const Icon(Icons.more_vert, size: 20),
                       onSelected: (value) {
                         if (value == 'rename') onRename();
-                        if (value == 'delete') onDelete();
+                        if (value == 'delete') {
+                          isTrashed ? onPermanentlyDelete?.call() : onDelete();
+                        }
+                        if (value == 'restore') onRestore?.call();
                       },
                       itemBuilder: (context) => [
                         const PopupMenuItem(
@@ -140,7 +111,18 @@ class NoteCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const PopupMenuItem(
+                        if (isTrashed)
+                          const PopupMenuItem(
+                            value: 'restore',
+                            child: Row(
+                              children: [
+                                Icon(Icons.restore, size: 18),
+                                SizedBox(width: 8),
+                                Text('Restore'),
+                              ],
+                            ),
+                          ),
+                        PopupMenuItem(
                           value: 'delete',
                           child: Row(
                             children: [
@@ -150,9 +132,14 @@ class NoteCard extends StatelessWidget {
                                 color: AppColors.error,
                               ),
                               SizedBox(width: 8),
-                              Text(
-                                'Delete',
-                                style: TextStyle(color: AppColors.error),
+                              Flexible(
+                                child: Text(
+                                  isTrashed
+                                      ? 'Delete permanently'
+                                      : 'Move to trash',
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: AppColors.error),
+                                ),
                               ),
                             ],
                           ),
@@ -196,7 +183,10 @@ class NoteCard extends StatelessWidget {
           icon: const Icon(Icons.more_vert),
           onSelected: (value) {
             if (value == 'rename') onRename();
-            if (value == 'delete') onDelete();
+            if (value == 'delete') {
+              isTrashed ? onPermanentlyDelete?.call() : onDelete();
+            }
+            if (value == 'restore') onRestore?.call();
           },
           itemBuilder: (context) => [
             const PopupMenuItem(
@@ -210,14 +200,31 @@ class NoteCard extends StatelessWidget {
                 ],
               ),
             ),
-            const PopupMenuItem(
+            if (isTrashed)
+              const PopupMenuItem(
+                value: 'restore',
+                child: Row(
+                  children: [
+                    Icon(Icons.restore, size: 18),
+                    SizedBox(width: 8),
+                    Text('Restore'),
+                  ],
+                ),
+              ),
+            PopupMenuItem(
               value: 'delete',
               key: Key('menu_delete_option'),
               child: Row(
                 children: [
                   Icon(Icons.delete_outline, size: 18, color: AppColors.error),
                   SizedBox(width: 8),
-                  Text('Delete', style: TextStyle(color: AppColors.error)),
+                  Flexible(
+                    child: Text(
+                      isTrashed ? 'Delete permanently' : 'Move to trash',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: AppColors.error),
+                    ),
+                  ),
                 ],
               ),
             ),

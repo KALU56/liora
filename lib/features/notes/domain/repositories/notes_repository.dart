@@ -14,6 +14,12 @@ abstract interface class NotesRepository {
 
   bool deleteNote(String id);
 
+  bool restoreNote(String id);
+
+  bool permanentlyDeleteNote(String id);
+
+  List<NoteModel> get trashedNotes;
+
   List<NoteModel> searchNotes(String query);
 
   NoteModel? getNoteById(String id);

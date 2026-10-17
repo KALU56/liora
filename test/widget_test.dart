@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:notability_clone/core/routes/app_routes.dart';
 import 'package:notability_clone/main.dart';
 
 void main() {
+  test('AppRoutes defines expected single editor route', () {
+    expect(
+      AppRoutes.routes.keys,
+      containsAll([AppRoutes.home, AppRoutes.editor]),
+    );
+    expect(AppRoutes.routes.containsKey('/note_editor'), isFalse);
+  });
+
   testWidgets('Foundation app smoke test & navigation', (
     WidgetTester tester,
   ) async {

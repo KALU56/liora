@@ -27,6 +27,12 @@ class NotesUseCases {
     return repository.deleteNote(id);
   }
 
+  List<NoteModel> get trashedNotes => repository.trashedNotes;
+
+  bool restoreNote(String id) => repository.restoreNote(id);
+
+  bool permanentlyDeleteNote(String id) => repository.permanentlyDeleteNote(id);
+
   List<NoteModel> searchNotes(String query) {
     return repository.searchNotes(query);
   }

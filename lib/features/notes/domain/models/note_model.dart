@@ -8,6 +8,7 @@ class NoteModel {
   final DateTime modifiedDate;
   final DateTime createdDate;
   final String? thumbnailPath;
+  final bool isTrashed;
 
   const NoteModel({
     required this.id,
@@ -17,6 +18,7 @@ class NoteModel {
     required this.modifiedDate,
     required this.createdDate,
     this.thumbnailPath,
+    this.isTrashed = false,
   }) : _storedPageCount = pageCount,
        pages = pages ?? const [];
 
@@ -32,6 +34,7 @@ class NoteModel {
     DateTime? modifiedDate,
     DateTime? createdDate,
     String? thumbnailPath,
+    bool? isTrashed,
   }) {
     return NoteModel(
       id: id ?? this.id,
@@ -41,6 +44,7 @@ class NoteModel {
       modifiedDate: modifiedDate ?? this.modifiedDate,
       createdDate: createdDate ?? this.createdDate,
       thumbnailPath: thumbnailPath ?? this.thumbnailPath,
+      isTrashed: isTrashed ?? this.isTrashed,
     );
   }
 }
