@@ -107,7 +107,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Untitled Note'), findsOneWidget);
-      expect(find.byKey(const Key('editor_more_button')), findsOneWidget);
+      expect(find.byKey(const Key('page_control_rail')), findsOneWidget);
       expect(find.byKey(const Key('submit_create_note_button')), findsNothing);
     });
 
