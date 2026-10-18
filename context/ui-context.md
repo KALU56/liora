@@ -45,7 +45,7 @@ Note cards show title, page count, relative modification time, and in grid view 
 | **Undo** | Reverses the latest canvas action. Disabled when there is none | `_undoStroke` -> page-local `CanvasUseCases.undo` -> `CanvasHistoryManager.undo` -> replace page strokes, auto-save. Canvas history only, not text history; tooltips say drawing action |
 | **Redo** | Reapplies the latest undone action. Disabled when none | `_redoStroke` -> `CanvasUseCases.redo` |
 | **Add page (+)** | Adds a page that copies the current paper template, selects it, resets zoom, saves | `_addPage` -> `_newPage(template: current.paperTemplate)` -> `_autosaveNote` |
-| **Page control rail** | Always-visible vertical controls over the page's right edge: Zoom in, Zoom out, Reset zoom, Paper settings, Previous page, Next page. The page fills the viewport beneath a surface panel styled like the floating toolbar, and the rail scrolls when vertical space is short. Previous/next are disabled at the first/last page | `page_control_rail` -> `_zoomIn` / `_zoomOut` / `_resetZoom` / `_openPaperCustomization` / `_goToPage` |
+| **Page control rail** | Always-visible vertical controls over the page's right edge: Zoom in, Zoom out, Reset zoom, Paper settings (custom paper SVG), Previous page, Next page. The page fills the viewport beneath a surface panel styled like the floating toolbar, and the rail scrolls when vertical space is short. Previous/next are disabled at the first/last page | `page_control_rail` -> `_zoomIn` / `_zoomOut` / `_resetZoom` / `_openPaperCustomization` / `_goToPage` |
 | **Page counter** | Shows "Page N of M". Informational, not a picker | From `_currentPageIndex` and `_pages.length` |
 | **Pinch zoom** | Pinch scales the page from 0.2x to 5x | `InteractiveViewer` scaling on. Drag panning is available through the Pan mode button; while active, canvas drawing is disabled |
 | **Paper settings** | Opens the paper sheet. Updates this page's paper and saves | `_openPaperCustomization` -> `PaperCustomizationSheet.show` -> `PaperUseCases.updateTemplate` -> `_replaceCurrentPage` |
@@ -59,8 +59,8 @@ Note cards show title, page count, relative modification time, and in grid view 
 | **Add content (+)** | Opens a popover: Add photo, Add file, Add link |
 | **Handwriting / drawing** | Toggles drawing mode and closes text editing and popovers. Pointer input then makes strokes |
 | **Pan page** | Toggles page drag mode; drawing input is disabled until pan mode is turned off |
-| **Pen settings** | Turns on drawing and toggles the pen settings popover |
-| **More tools (arrow)** | Opens the expanded tools popover: Pen, Pencil, Highlighter, Eraser, Shapes, Ruler, Record audio / Stop audio recording, Clear handwriting |
+| **Pen settings** | Turns on drawing and toggles the pen settings popover; uses the custom pen SVG |
+| **More tools (circle arrow)** | Opens the expanded tools popover: Pen, Pencil, Highlighter, Eraser, Shapes (custom SVG icons), Ruler, Record audio / Stop audio recording, Clear handwriting (custom clear SVG) |
 
 ### Add content popover
 
@@ -81,7 +81,9 @@ Note cards show title, page count, relative modification time, and in grid view 
 ## 5. Pen settings and tool controls
 
 Choosing a tool updates the current page's `ToolConfig`, turns on drawing mode,
-closes the popover, and saves the note.
+closes the popover, and saves the note. Pen, Pencil, Highlighter, Eraser, and
+Shapes use SVG assets from `assets/icons/` in the selector and popovers. They
+inherit the current icon theme color for selected and unselected states.
 
 | Control | Behavior |
 |---|---|

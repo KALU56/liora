@@ -1,5 +1,23 @@
 # Change Log
 
+## 2026-10-18: Use circle arrow for More tools
+- **Before:** The More tools button showed a plain forward arrow.
+- **After:** The button shows the custom circle-arrow SVG.
+- **Why:** Match the button to the custom icon set.
+- **Files changed:** `lib/core/constants/app_icons.dart`, `lib/features/editor/presentation/editor_toolbar_actions.dart`, `test/digital_writing_tools_test.dart`, `context/ui-context.md`, `context/change-log.md`.
+- **Tests run:** `dart format` passed; `flutter analyze` passed with no issues; `flutter test test/digital_writing_tools_test.dart` passed (16 tests).
+- **Check by hand:** Open the editor and confirm More tools shows the circle arrow and still opens the expanded tools.
+- **Needs your attention:** None.
+
+## 2026-10-18: Use custom SVG icons for editor controls
+- **Before:** Pen, Pencil, Highlighter, Eraser, Shapes, Clear handwriting, and Paper settings used Material icons.
+- **After:** These seven controls use themed SVG assets through a shared icon widget with a Material fallback; labels, touch targets, and actions are preserved.
+- **Why:** Apply the custom icon set consistently across the editor controls.
+- **Files changed:** `lib/core/constants/app_icons.dart` (added), `lib/core/widgets/app_icon.dart` (added), `lib/features/canvas/presentation/widgets/writing_tool_selector.dart`, `lib/features/editor/presentation/editor_popover_actions.dart`, `lib/features/editor/presentation/editor_toolbar_actions.dart`, `lib/features/editor/presentation/editor_workspace.dart`, `lib/features/editor/presentation/new_note_screen.dart`, `pubspec.yaml`, `pubspec.lock`, `test/digital_writing_tools_test.dart`, `test/note_editor_redesign_test.dart`, `context/ui-context.md`, `context/change-log.md`.
+- **Tests run:** `dart format` passed; `flutter analyze` passed with no issues; focused editor and writing tools tests passed (28 tests); full `flutter test` passed (99 tests).
+- **Check by hand:** Check light and dark mode, selected and unselected tools, a small phone layout, and all seven controls: Pen, Pencil, Highlighter, Eraser, Shapes, Clear handwriting, and Paper settings.
+- **Needs your attention:** None.
+
 ## 2026-10-17: Set screen and widget file organization rules
 - **Before:** Screen naming and reusable widget placement were not stated as explicit project rules.
 - **After:** Screens use `*_screen.dart` under `presentation/`; reusable widgets use individual files under `presentation/widgets/`. `main.dart` is the root app exception.
