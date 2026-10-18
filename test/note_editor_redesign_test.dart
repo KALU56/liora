@@ -2,9 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:notability_clone/core/constants/app_icons.dart';
 import 'package:notability_clone/core/theme/app_colors.dart';
 import 'package:notability_clone/core/theme/app_spacing.dart';
 import 'package:notability_clone/core/theme/app_theme.dart';
+import 'package:notability_clone/core/widgets/app_icon.dart';
 import 'package:notability_clone/features/canvas/domain/models/writing_tool.dart';
 import 'package:notability_clone/features/canvas/presentation/widgets/stroke_painter.dart';
 import 'package:notability_clone/features/library/presentation/new_note_screen.dart';
@@ -50,6 +52,12 @@ void main() {
     expect(find.byKey(const Key('zoom_out_button')), findsOneWidget);
     expect(find.byKey(const Key('reset_zoom_button')), findsOneWidget);
     expect(find.byKey(const Key('paper_settings_button')), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is AppIcon && widget.assetPath == AppIcons.paper,
+      ),
+      findsOneWidget,
+    );
     expect(find.byKey(const Key('previous_page_button')), findsOneWidget);
     expect(find.byKey(const Key('next_page_button')), findsOneWidget);
     expect(find.byKey(const Key('editor_more_button')), findsNothing);
