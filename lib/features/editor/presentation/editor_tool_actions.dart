@@ -42,9 +42,4 @@ extension _EditorToolActions on _NewNoteScreenState {
     );
     _updateEditorState(() => _isPenMode = true);
   }
-
-  void _selectPenPreset(ToolConfig config) {
-    _replaceCurrentPage(_currentPage.copyWith(toolConfig: config));
-    _updateEditorState(() => _activePopover = null);
-  }
 }
