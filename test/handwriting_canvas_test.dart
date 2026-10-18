@@ -319,6 +319,8 @@ void main() {
         await tester.tap(clearItem);
         await tester.pumpAndSettle();
 
+        expect(find.byKey(const Key('text_tool_button')), findsNothing);
+
         final HandwritingCanvasWidget canvasWidget = tester.widget(
           find.byKey(const Key('handwriting_canvas')),
         );
