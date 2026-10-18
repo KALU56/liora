@@ -11,7 +11,6 @@ extension _EditorPopoverActions on _NewNoteScreenState {
         onAddLink: _addLink,
       ),
       EditorPopover.pen => _buildPenPopover(),
-      EditorPopover.expanded => _buildExpandedPopover(),
       EditorPopover.text => _buildTextPopover(),
       EditorPopover.stroke => _buildStrokePopover(),
     };
@@ -33,14 +32,6 @@ extension _EditorPopoverActions on _NewNoteScreenState {
 
   Widget _buildPenPopover() {
     final config = _currentPage.toolConfig;
-    final tools = <(WritingToolType, String, String)>[
-      (WritingToolType.pen, AppIcons.pen, 'tool_pen'),
-      (WritingToolType.pencil, AppIcons.pencil, 'tool_pencil'),
-      (WritingToolType.highlighter, AppIcons.highlighter, 'tool_highlighter'),
-      (WritingToolType.eraser, AppIcons.eraser, 'tool_eraser'),
-      (WritingToolType.shape, AppIcons.shapes, 'tool_shape'),
-      (WritingToolType.ruler, '', 'tool_ruler'),
-    ];
     final colors = <(int, String)>[
       (0xFF202124, 'color_picker_black'),
       (0xFF2196F3, 'color_picker_blue'),
@@ -67,24 +58,6 @@ extension _EditorPopoverActions on _NewNoteScreenState {
             ),
           ],
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: tools
-              .map(
-                (item) => IconButton(
-                  key: Key(item.$3),
-                  tooltip: item.$1.name,
-                  icon: item.$2.isEmpty
-                      ? const Icon(Icons.straighten)
-                      : AppIcon(item.$2),
-                  color: config.toolType == item.$1
-                      ? Theme.of(context).colorScheme.primary
-                      : null,
-                  onPressed: () => _selectWritingTool(item.$1),
-                ),
-              )
-              .toList(),
-        ),
         if (config.toolType == WritingToolType.eraser)
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -103,34 +76,6 @@ extension _EditorPopoverActions on _NewNoteScreenState {
                 selected: config.eraserSize == EraserSize.large,
                 onSelected: (_) =>
                     update(config.copyWith(eraserSize: EraserSize.large)),
-              ),
-            ],
-          ),
-        if (config.toolType == WritingToolType.shape)
-          Column(
-            children: [
-              DropdownButton<ShapeType>(
-                key: const Key('shape_type_selector'),
-                value: config.shapeType,
-                items: ShapeType.values
-                    .map(
-                      (shape) => DropdownMenuItem(
-                        value: shape,
-                        child: Text(shape.name),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (shape) {
-                  if (shape != null) update(config.copyWith(shapeType: shape));
-                },
-              ),
-              CheckboxListTile(
-                key: const Key('shape_fill_toggle'),
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Fill shape'),
-                value: config.filled,
-                onChanged: (filled) =>
-                    update(config.copyWith(filled: filled ?? false)),
               ),
             ],
           ),
@@ -193,70 +138,8 @@ extension _EditorPopoverActions on _NewNoteScreenState {
               ),
             ],
           ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: IconButton(
-              key: const Key('preset_fine_pen'),
-              tooltip: 'Fine pen',
-              icon: const Icon(Icons.line_weight),
-              onPressed: () => _selectPenPreset(
-                ToolConfig.defaultPen.copyWith(strokeWidth: 1.5),
-              ),
-            ),
-          ),
         ],
       ],
     );
   }
-
-  Widget _buildExpandedPopover() => Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      ListTile(
-        leading: const AppIcon(AppIcons.pen),
-        title: const Text('Pen'),
-        onTap: () => _selectWritingTool(WritingToolType.pen),
-      ),
-      ListTile(
-        leading: const AppIcon(AppIcons.pencil),
-        title: const Text('Pencil'),
-        onTap: () => _selectWritingTool(WritingToolType.pencil),
-      ),
-      ListTile(
-        leading: const AppIcon(AppIcons.highlighter),
-        title: const Text('Highlighter'),
-        onTap: () => _selectWritingTool(WritingToolType.highlighter),
-      ),
-      ListTile(
-        leading: const AppIcon(AppIcons.eraser),
-        title: const Text('Eraser'),
-        onTap: () => _selectWritingTool(WritingToolType.eraser),
-      ),
-      ListTile(
-        leading: const AppIcon(AppIcons.shapes),
-        title: const Text('Shapes'),
-        onTap: () => _selectWritingTool(WritingToolType.shape),
-      ),
-      ListTile(
-        key: const Key('select_ruler_tool'),
-        leading: const Icon(Icons.straighten),
-        title: const Text('Ruler'),
-        onTap: () => _selectWritingTool(WritingToolType.ruler),
-      ),
-      ListTile(
-        leading: Icon(_isRecording ? Icons.stop : Icons.mic),
-        title: Text(_isRecording ? 'Stop audio recording' : 'Record audio'),
-        onTap: _toggleRecording,
-      ),
-      ListTile(
-        key: const Key('clear_canvas_button'),
-        leading: const AppIcon(AppIcons.clear),
-        title: const Text('Clear handwriting'),
-        onTap: () {
-          _clearCanvas();
-          _updateEditorState(() => _activePopover = null);
-        },
-      ),
-    ],
-  );
 }
