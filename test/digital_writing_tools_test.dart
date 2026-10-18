@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:notability_clone/core/constants/app_icons.dart';
+import 'package:notability_clone/core/widgets/app_icon.dart';
 import 'package:notability_clone/features/canvas/domain/models/argb_color.dart';
 import 'package:notability_clone/features/canvas/domain/models/point_2d.dart';
 import 'package:notability_clone/features/canvas/domain/models/stroke.dart';
@@ -15,6 +17,46 @@ Future<void> _openWritingTools(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets('writing tools use their custom SVG icons', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: NewNoteScreen()));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is AppIcon && widget.assetPath == AppIcons.circleArrowRight,
+      ),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('pen_tool_button')));
+    await tester.pumpAndSettle();
+
+    for (final asset in [
+      AppIcons.pen,
+      AppIcons.pencil,
+      AppIcons.highlighter,
+      AppIcons.eraser,
+      AppIcons.shapes,
+    ]) {
+      expect(
+        find.byWidgetPredicate(
+          (widget) => widget is AppIcon && widget.assetPath == asset,
+        ),
+        findsAtLeastNWidgets(1),
+      );
+    }
+
+    await tester.tap(find.byKey(const Key('expand_tools_button')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is AppIcon && widget.assetPath == AppIcons.clear,
+      ),
+      findsOneWidget,
+    );
+  });
+
   group('Issue #5 — Digital Writing Tools QA Gate', () {
     testWidgets(
       'Test 27 — Pen Tool Activation: Pen activates and default settings apply',
