@@ -16,6 +16,7 @@ import '../../canvas/domain/models/writing_tool.dart';
 import '../../canvas/presentation/widgets/handwriting_canvas_widget.dart';
 import '../data/editor_media_service.dart';
 import 'editor_session_state.dart';
+import 'widgets/editor_floating_toolbar.dart';
 import 'widgets/editor_content_menu.dart';
 import '../../notes/application/notes_use_cases.dart';
 import '../../notes/data/note_attachment_storage.dart';
@@ -29,7 +30,6 @@ import '../../paper/presentation/widgets/paper_canvas_widget.dart';
 import '../../paper/presentation/widgets/paper_customization_sheet.dart';
 
 part 'editor_selection_controls.dart';
-
 part 'editor_canvas_interactions.dart';
 part 'editor_voice_actions.dart';
 part 'editor_popover_actions.dart';
