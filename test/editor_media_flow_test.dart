@@ -82,13 +82,12 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('expand_tools_button')));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Record audio'));
+    final recordButton = find.byKey(const Key('toolbar_record_audio_button'));
+    await tester.ensureVisible(recordButton);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Record audio'));
+    await tester.tap(recordButton);
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Stop audio recording'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Stop audio recording'));
+    await tester.tap(recordButton);
     await tester.pumpAndSettle();
 
     expect(repository.notes.single.pages.single.attachments, ['recording.m4a']);
@@ -109,8 +108,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('expand_tools_button')));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Record audio'));
-    await tester.tap(find.text('Record audio'));
+    final recordButton = find.byKey(const Key('toolbar_record_audio_button'));
+    await tester.ensureVisible(recordButton);
+    await tester.tap(recordButton);
     await tester.pumpAndSettle();
 
     expect(
@@ -177,12 +177,13 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('expand_tools_button')));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Record audio'));
-    await tester.tap(find.text('Record audio'));
+    final recordButton = find.byKey(const Key('toolbar_record_audio_button'));
+    await tester.ensureVisible(recordButton);
+    await tester.tap(recordButton);
     await tester.pumpAndSettle();
 
     expect(find.text('Audio recording is unavailable.'), findsOneWidget);
-    expect(find.text('Record audio'), findsOneWidget);
+    expect(recordButton, findsOneWidget);
   });
 
   testWidgets('audio playback failure gives the user feedback', (tester) async {
