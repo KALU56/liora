@@ -192,7 +192,7 @@ extension _EditorWorkspace on _NewNoteScreenState {
                                 height: AppSpacing.touchTarget,
                               ),
                               onPressed: _openPaperCustomization,
-                              icon: const Icon(Icons.layers_outlined),
+                              icon: const AppIcon(AppIcons.paper),
                             ),
                             IconButton(
                               key: const Key('previous_page_button'),
