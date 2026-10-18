@@ -9,6 +9,9 @@ abstract class AppSpacing {
   static const double pageControlRailWidth = 56.0;
   static const double pageControlRailMaxHeight = 304.0;
   static const double touchTarget = 48.0;
+  static const double toolbarIconSize = 22.0;
+  static const double toolbarLabelFontSize = 17.0;
+  static const Duration toolbarAnimationDuration = Duration(milliseconds: 160);
   static const double xs = 4.0;
   static const double sm = 8.0;
   static const double md = 12.0;
