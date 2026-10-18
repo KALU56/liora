@@ -4,7 +4,7 @@ extension _EditorToolbarActions on _NewNoteScreenState {
   Widget _toolButton({
     required Key key,
     required String tooltip,
-    required IconData icon,
+    required Widget icon,
     required VoidCallback onPressed,
     bool active = false,
     String? label,
@@ -26,12 +26,14 @@ extension _EditorToolbarActions on _NewNoteScreenState {
         ),
         child: Center(
           child: label == null
-              ? Icon(
-                  icon,
-                  size: 22,
-                  color: active
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
+              ? IconTheme.merge(
+                  data: IconThemeData(
+                    size: 22,
+                    color: active
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  child: icon,
                 )
               : Text(
                   label,
@@ -76,7 +78,7 @@ extension _EditorToolbarActions on _NewNoteScreenState {
               _toolButton(
                 key: const Key('text_tool_button'),
                 tooltip: _isTextMode ? 'Finish typing' : 'Type on canvas',
-                icon: Icons.text_fields,
+                icon: const Icon(Icons.text_fields),
                 label: 'Tt',
                 active: _isTextMode,
                 onPressed: _activateTextMode,
@@ -84,21 +86,21 @@ extension _EditorToolbarActions on _NewNoteScreenState {
               _toolButton(
                 key: const Key('voice_input_button'),
                 tooltip: _isListening ? 'Stop voice input' : 'Voice input',
-                icon: _isListening ? Icons.mic : Icons.mic_none,
+                icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
                 active: _voiceSessionRequested,
                 onPressed: _toggleVoiceInput,
               ),
               _toolButton(
                 key: const Key('add_content_button'),
                 tooltip: 'Add content',
-                icon: Icons.add,
+                icon: const Icon(Icons.add),
                 active: activeTool == EditorPopover.content,
                 onPressed: _showAddContentMenu,
               ),
               _toolButton(
                 key: const Key('handwriting_tool_button'),
                 tooltip: 'Handwriting / drawing',
-                icon: Icons.gesture,
+                icon: const Icon(Icons.gesture),
                 active: _isPenMode,
                 onPressed: () {
                   FocusManager.instance.primaryFocus?.unfocus();
@@ -115,7 +117,7 @@ extension _EditorToolbarActions on _NewNoteScreenState {
               _toolButton(
                 key: const Key('pan_tool_button'),
                 tooltip: _isPanMode ? 'Finish panning' : 'Pan page',
-                icon: Icons.pan_tool_alt,
+                icon: const Icon(Icons.pan_tool_alt),
                 active: _isPanMode,
                 onPressed: () {
                   FocusManager.instance.primaryFocus?.unfocus();
@@ -132,7 +134,7 @@ extension _EditorToolbarActions on _NewNoteScreenState {
               _toolButton(
                 key: const Key('pen_tool_button'),
                 tooltip: 'Pen settings',
-                icon: Icons.edit_outlined,
+                icon: const AppIcon(AppIcons.pen),
                 active: activeTool == EditorPopover.pen,
                 onPressed: () {
                   FocusManager.instance.primaryFocus?.unfocus();
@@ -151,7 +153,7 @@ extension _EditorToolbarActions on _NewNoteScreenState {
               _toolButton(
                 key: const Key('expand_tools_button'),
                 tooltip: 'More tools',
-                icon: Icons.arrow_forward,
+                icon: const AppIcon(AppIcons.circleArrowRight),
                 active: activeTool == EditorPopover.expanded,
                 onPressed: () => _openPopover(EditorPopover.expanded),
               ),
