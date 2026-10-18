@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:notability_clone/features/notes/domain/models/note_page.dart';
 
-enum EditorPopover { content, pen, expanded, text, stroke }
+enum EditorPopover { content, pen, text, stroke }
 
 /// Holds the editor session's shared page, mode, selection, and voice state.
 class EditorSessionState {
