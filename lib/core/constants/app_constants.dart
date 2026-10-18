@@ -1,4 +1,29 @@
 abstract class AppConstants {
   static const String appName = 'PaperNote';
   static const String appVersion = '1.0.0';
+  static const String typeOnCanvas = 'Type on canvas';
+  static const String textToolLabel = 'Tt';
+  static const String finishTyping = 'Finish typing';
+  static const String voiceInput = 'Voice input';
+  static const String stopVoiceInput = 'Stop voice input';
+  static const String addContent = 'Add content';
+  static const String handwritingDrawing = 'Handwriting / drawing';
+  static const String finishPanning = 'Finish panning';
+  static const String panPage = 'Pan page';
+  static const String penSettings = 'Pen settings';
+  static const String highlighterSettings = 'Highlighter settings';
+  static const String eraserSettings = 'Eraser settings';
+  static const String moreTools = 'More tools';
+  static const String back = 'Back';
+  static const String pen = 'Pen';
+  static const String pencil = 'Pencil';
+  static const String highlighter = 'Highlighter';
+  static const String eraser = 'Eraser';
+  static const String shapes = 'Shapes';
+  static const String ruler = 'Ruler';
+  static const String recordAudio = 'Record audio';
+  static const String stopAudioRecording = 'Stop audio recording';
+  static const String clearHandwriting = 'Clear handwriting';
+  static const String fillShape = 'Fill shape';
+  static const String removeShapeFill = 'Remove shape fill';
 }
