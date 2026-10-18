@@ -8,4 +8,5 @@ abstract final class AppIcons {
   static const clear = 'assets/icons/clear.svg';
   static const paper = 'assets/icons/paper.svg';
   static const circleArrowRight = 'assets/icons/circle-arrow-right.svg';
+  static const arrowLeft = 'assets/icons/arrow-left.svg';
 }
