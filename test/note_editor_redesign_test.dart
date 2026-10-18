@@ -221,7 +221,7 @@ void main() {
     expect(after.y, greaterThan(before.y));
   });
 
-  testWidgets('editor controls fit a narrow screen and tools open on demand', (
+  testWidgets('toolbar mode switches tools without narrow-screen overflow', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(360, 640);
@@ -235,10 +235,95 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('handwriting_tool_button')), findsOneWidget);
-    await tester.tap(find.byKey(const Key('pen_tool_button')));
+    expect(find.byKey(const Key('text_tool_button')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('expand_tools_button')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('tool_pen')), findsOneWidget);
-    await tester.tap(find.byKey(const Key('tool_shape')));
+    expect(find.byKey(const Key('text_tool_button')), findsNothing);
+    expect(find.byKey(const Key('voice_input_button')), findsNothing);
+    expect(find.byKey(const Key('toolbar_tool_pen')), findsOneWidget);
+    expect(
+      tester
+          .widget<Tooltip>(
+            find.ancestor(
+              of: find.byKey(const Key('expand_tools_button')),
+              matching: find.byType(Tooltip),
+            ),
+          )
+          .message,
+      'Back',
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is AppIcon && widget.assetPath == AppIcons.arrowLeft,
+      ),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.byKey(const Key('toolbar_tool_highlighter')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('text_tool_button')), findsNothing);
+    expect(
+      repository.notes.single.pages.first.toolConfig.toolType,
+      WritingToolType.highlighter,
+    );
+
+    await tester.tap(find.byKey(const Key('toolbar_tool_shape')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('text_tool_button')), findsNothing);
+    expect(find.byKey(const Key('toolbar_shape_rectangle')), findsOneWidget);
+    expect(
+      repository.notes.single.pages.first.toolConfig.toolType,
+      WritingToolType.shape,
+    );
+
+    await tester.tap(find.byKey(const Key('toolbar_shape_triangle')));
+    await tester.pumpAndSettle();
+    expect(
+      repository.notes.single.pages.first.toolConfig.shapeType,
+      ShapeType.triangle,
+    );
+    await tester.ensureVisible(
+      find.byKey(const Key('toolbar_shape_fill_button')),
+    );
+    await tester.tap(find.byKey(const Key('toolbar_shape_fill_button')));
+    await tester.pumpAndSettle();
+    expect(repository.notes.single.pages.first.toolConfig.filled, isTrue);
+    expect(find.byKey(const Key('toolbar_shape_triangle')), findsOneWidget);
+
+    await tester.ensureVisible(find.byKey(const Key('expand_tools_button')));
+    await tester.tap(find.byKey(const Key('expand_tools_button')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('toolbar_tool_pen')), findsOneWidget);
+    expect(find.byKey(const Key('toolbar_shape_triangle')), findsNothing);
+    await tester.ensureVisible(find.byKey(const Key('expand_tools_button')));
+    await tester.tap(find.byKey(const Key('expand_tools_button')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('text_tool_button')), findsOneWidget);
+    expect(
+      tester
+          .widget<Tooltip>(
+            find.ancestor(
+              of: find.byKey(const Key('expand_tools_button')),
+              matching: find.byType(Tooltip),
+            ),
+          )
+          .message,
+      'More tools',
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is AppIcon && widget.assetPath == AppIcons.circleArrowRight,
+      ),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('expand_tools_button')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('toolbar_tool_shape')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('toolbar_shape_arrow')));
     await tester.pumpAndSettle();
     final canvas = find.byKey(const Key('handwriting_touch_listener'));
     final gesture = await tester.startGesture(tester.getCenter(canvas));
@@ -252,7 +337,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('editor popovers follow the app dark theme', (tester) async {
+  testWidgets('floating toolbar follows the app dark theme', (tester) async {
     final repository = NoteRepository(storage: _MemoryStorage());
     await tester.pumpWidget(
       MaterialApp(
@@ -264,13 +349,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('expand_tools_button')));
-    await tester.pumpAndSettle();
-
-    final popover = find.byKey(const Key('active_editor_popover_expanded'));
-    expect(tester.widget<Material>(popover).color, AppColors.darkSurface);
+    final toolbar = find.byKey(const Key('floating_editor_toolbar'));
+    expect(tester.widget<Material>(toolbar).color, AppColors.darkSurface);
     expect(
-      Theme.of(tester.element(popover)).colorScheme.onSurface,
+      Theme.of(tester.element(toolbar)).colorScheme.onSurface,
       AppColors.darkTextPrimary,
     );
   });
@@ -286,7 +368,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('expand_tools_button')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('select_ruler_tool')));
+    await tester.tap(find.byKey(const Key('toolbar_tool_ruler')));
     await tester.pumpAndSettle();
 
     final canvas = find.byKey(const Key('handwriting_touch_listener'));
@@ -326,7 +408,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('expand_tools_button')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('select_ruler_tool')));
+    await tester.tap(find.byKey(const Key('toolbar_tool_ruler')));
     await tester.pumpAndSettle();
 
     final canvas = find.byKey(const Key('handwriting_touch_listener'));
@@ -394,9 +476,9 @@ void main() {
       MaterialApp(home: NewNoteScreen(repository: repository)),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('pen_tool_button')));
+    await tester.tap(find.byKey(const Key('expand_tools_button')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('tool_pen')));
+    await tester.tap(find.byKey(const Key('toolbar_tool_pen')));
     await tester.pumpAndSettle();
 
     final canvas = find.byKey(const Key('handwriting_touch_listener'));
@@ -427,19 +509,15 @@ void main() {
       MaterialApp(home: NewNoteScreen(repository: repository)),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('pen_tool_button')));
+    await tester.tap(find.byKey(const Key('expand_tools_button')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('tool_shape')));
+    await tester.tap(find.byKey(const Key('toolbar_tool_shape')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('pen_tool_button')));
+    await tester.tap(find.byKey(const Key('toolbar_shape_triangle')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('shape_type_selector')));
+    await tester.tap(find.byKey(const Key('toolbar_shape_fill_button')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('triangle').last);
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('shape_fill_toggle')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('pen_tool_button')));
+    await tester.tap(find.byKey(const Key('expand_tools_button')));
     await tester.pumpAndSettle();
 
     final canvas = find.byKey(const Key('handwriting_touch_listener'));
