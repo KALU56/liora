@@ -4,6 +4,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../core/constants/app_icons.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../../core/dependencies/app_dependencies.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../canvas/application/canvas_use_cases.dart';
