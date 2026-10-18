@@ -33,13 +33,13 @@ extension _EditorPopoverActions on _NewNoteScreenState {
 
   Widget _buildPenPopover() {
     final config = _currentPage.toolConfig;
-    final tools = <(WritingToolType, IconData, String)>[
-      (WritingToolType.pen, Icons.edit, 'tool_pen'),
-      (WritingToolType.pencil, Icons.create_outlined, 'tool_pencil'),
-      (WritingToolType.highlighter, Icons.highlight, 'tool_highlighter'),
-      (WritingToolType.eraser, Icons.auto_fix_normal, 'tool_eraser'),
-      (WritingToolType.shape, Icons.crop_16_9_outlined, 'tool_shape'),
-      (WritingToolType.ruler, Icons.straighten, 'tool_ruler'),
+    final tools = <(WritingToolType, String, String)>[
+      (WritingToolType.pen, AppIcons.pen, 'tool_pen'),
+      (WritingToolType.pencil, AppIcons.pencil, 'tool_pencil'),
+      (WritingToolType.highlighter, AppIcons.highlighter, 'tool_highlighter'),
+      (WritingToolType.eraser, AppIcons.eraser, 'tool_eraser'),
+      (WritingToolType.shape, AppIcons.shapes, 'tool_shape'),
+      (WritingToolType.ruler, '', 'tool_ruler'),
     ];
     final colors = <(int, String)>[
       (0xFF202124, 'color_picker_black'),
@@ -74,7 +74,9 @@ extension _EditorPopoverActions on _NewNoteScreenState {
                 (item) => IconButton(
                   key: Key(item.$3),
                   tooltip: item.$1.name,
-                  icon: Icon(item.$2),
+                  icon: item.$2.isEmpty
+                      ? const Icon(Icons.straighten)
+                      : AppIcon(item.$2),
                   color: config.toolType == item.$1
                       ? Theme.of(context).colorScheme.primary
                       : null,
@@ -211,27 +213,27 @@ extension _EditorPopoverActions on _NewNoteScreenState {
     mainAxisSize: MainAxisSize.min,
     children: [
       ListTile(
-        leading: const Icon(Icons.edit),
+        leading: const AppIcon(AppIcons.pen),
         title: const Text('Pen'),
         onTap: () => _selectWritingTool(WritingToolType.pen),
       ),
       ListTile(
-        leading: const Icon(Icons.create_outlined),
+        leading: const AppIcon(AppIcons.pencil),
         title: const Text('Pencil'),
         onTap: () => _selectWritingTool(WritingToolType.pencil),
       ),
       ListTile(
-        leading: const Icon(Icons.highlight),
+        leading: const AppIcon(AppIcons.highlighter),
         title: const Text('Highlighter'),
         onTap: () => _selectWritingTool(WritingToolType.highlighter),
       ),
       ListTile(
-        leading: const Icon(Icons.auto_fix_normal),
+        leading: const AppIcon(AppIcons.eraser),
         title: const Text('Eraser'),
         onTap: () => _selectWritingTool(WritingToolType.eraser),
       ),
       ListTile(
-        leading: const Icon(Icons.crop_16_9_outlined),
+        leading: const AppIcon(AppIcons.shapes),
         title: const Text('Shapes'),
         onTap: () => _selectWritingTool(WritingToolType.shape),
       ),
@@ -248,7 +250,7 @@ extension _EditorPopoverActions on _NewNoteScreenState {
       ),
       ListTile(
         key: const Key('clear_canvas_button'),
-        leading: const Icon(Icons.delete_sweep_outlined),
+        leading: const AppIcon(AppIcons.clear),
         title: const Text('Clear handwriting'),
         onTap: () {
           _clearCanvas();
