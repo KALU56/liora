@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_icons.dart';
+import '../../../../core/widgets/app_icon.dart';
 import '../../domain/models/writing_tool.dart';
 
 /// Selects a writing tool while preserving each tool's current settings.
@@ -15,13 +17,13 @@ class WritingToolSelector extends StatelessWidget {
     this.vertical = false,
   });
 
-  static const _tools = <(WritingToolType, IconData, String)>[
-    (WritingToolType.pen, Icons.edit, 'Pen'),
-    (WritingToolType.pencil, Icons.mode_edit_outline, 'Pencil'),
-    (WritingToolType.highlighter, Icons.highlight, 'Highlighter'),
-    (WritingToolType.eraser, Icons.auto_fix_high, 'Eraser'),
-    (WritingToolType.shape, Icons.category_outlined, 'Shapes'),
-    (WritingToolType.ruler, Icons.straighten, 'Ruler'),
+  static const _tools = <(WritingToolType, String, String)>[
+    (WritingToolType.pen, AppIcons.pen, 'Pen'),
+    (WritingToolType.pencil, AppIcons.pencil, 'Pencil'),
+    (WritingToolType.highlighter, AppIcons.highlighter, 'Highlighter'),
+    (WritingToolType.eraser, AppIcons.eraser, 'Eraser'),
+    (WritingToolType.shape, AppIcons.shapes, 'Shapes'),
+    (WritingToolType.ruler, '', 'Ruler'),
   ];
 
   ToolConfig _configForTool(WritingToolType toolType) {
@@ -46,7 +48,7 @@ class WritingToolSelector extends StatelessWidget {
 
   Widget _buildButton(
     BuildContext context,
-    (WritingToolType, IconData, String) tool,
+    (WritingToolType, String, String) tool,
   ) {
     final (toolType, icon, label) = tool;
     final isSelected = activeConfig.toolType == toolType;
@@ -54,7 +56,7 @@ class WritingToolSelector extends StatelessWidget {
       message: label,
       child: IconButton(
         key: Key('tool_${toolType.name}'),
-        icon: Icon(icon),
+        icon: icon.isEmpty ? const Icon(Icons.straighten) : AppIcon(icon),
         color: isSelected
             ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.onSurfaceVariant,
