@@ -1,5 +1,41 @@
 # Change Log
 
+## 2026-10-19: Simplify Pen settings
+- **Before:** The Pen settings popover included tool switching, shape controls, and a Fine pen shortcut alongside drawing settings.
+- **After:** Tool switching stays in toolbar mode; Pen settings shows color, width, and opacity. Shape controls stay in the Shape toolbar row, and Eraser keeps its size control.
+- **Why:** Keep the settings panel focused on the selected tool's drawing adjustments.
+- **Files changed:** `lib/features/editor/presentation/editor_popover_actions.dart`, `lib/features/editor/presentation/editor_tool_actions.dart`, `test/digital_writing_tools_test.dart`, `test/note_editor_redesign_test.dart`, `context/ui-context.md`, `context/change-log.md`.
+- **Tests run:** `flutter test test/digital_writing_tools_test.dart test/note_editor_redesign_test.dart` passed (28 tests); `flutter analyze` reported no issues; Dart formatting check passed.
+- **Check by hand:** Open Pen settings and confirm the color, Width, and Opacity controls are present with no Pencil or Highlighter choices. Select Eraser and confirm Small/Large size remains available.
+- **Needs your attention:** None.
+
+## 2026-10-19: Add nested shape options to the toolbar
+- **Before:** Tapping Shapes selected the tool but left no in-toolbar way to choose a specific shape type or fill.
+- **After:** Shapes opens a nested row with Line, Rectangle, Square, Oval, Circle, Triangle, Arrow, and Fill controls. Back returns to the tools row, and Back again returns to normal mode.
+- **Why:** Keep shape selection and settings within the toolbar navigation the user requested.
+- **Files changed:** `lib/core/constants/app_constants.dart`, `lib/features/editor/presentation/editor_toolbar_actions.dart`, `lib/features/editor/presentation/widgets/editor_floating_toolbar.dart`, `lib/features/editor/presentation/widgets/editor_toolbar_button.dart` (added), `lib/features/editor/presentation/widgets/editor_shape_toolbar_options.dart` (added), `test/note_editor_redesign_test.dart`, `context/ui-context.md`, `context/progress-tracker.md`, `context/change-log.md`.
+- **Tests run:** `dart format` passed; `flutter analyze` passed with no issues; focused editor, writing-tool, and canvas tests passed (40 tests); full `flutter test` passed (99 tests).
+- **Check by hand:** Enter tools mode, tap Shapes, choose a shape and toggle Fill, then use Back once to return to tools and again to return to normal.
+- **Needs your attention:** On narrow screens, swipe horizontally to reach Back when the current row is wider than the display.
+
+## 2026-10-19: Keep tools mode open after selecting a tool
+- **Before:** Selecting a writing tool or clearing handwriting returned the floating toolbar to normal mode.
+- **After:** Tools mode remains open after tool selection and clearing; only the left arrow returns to normal mode.
+- **Why:** Keep the tool controls available while switching between tools.
+- **Files changed:** `lib/features/editor/presentation/widgets/editor_floating_toolbar.dart`, `test/note_editor_redesign_test.dart`, `test/handwriting_canvas_test.dart`, `context/ui-context.md`, `context/progress-tracker.md`, `context/change-log.md`.
+- **Tests run:** `dart format` passed; `flutter analyze` passed with no issues; focused editor, writing-tool, and canvas tests passed (40 tests); full `flutter test` passed (99 tests).
+- **Check by hand:** Enter tools mode, select Highlighter and another tool, clear handwriting, and confirm the toolbar stays in tools mode until you tap the left arrow.
+- **Needs your attention:** None.
+
+## 2026-10-19: Switch the floating toolbar to tools mode
+- **Before:** More tools opened a popover above the toolbar with the writing tools, ruler, audio recording, and clear actions.
+- **After:** More tools switches the toolbar row to those eight controls and shows the custom left arrow. Back restores the normal row. Tool selection and clear return to normal mode; recording remains in tools mode so it can be stopped. The row scrolls horizontally on narrow layouts.
+- **Why:** Keep the editor tools inside the floating toolbar while preserving their actions.
+- **Files changed:** `lib/core/constants/app_constants.dart`, `lib/core/constants/app_icons.dart`, `lib/core/theme/app_spacing.dart`, `lib/features/editor/presentation/editor_popover_actions.dart`, `lib/features/editor/presentation/editor_session_state.dart`, `lib/features/editor/presentation/editor_toolbar_actions.dart`, `lib/features/editor/presentation/new_note_screen.dart`, `lib/features/editor/presentation/widgets/editor_floating_toolbar.dart` (added), `test/digital_writing_tools_test.dart`, `test/editor_media_flow_test.dart`, `test/note_editor_redesign_test.dart`, `context/ui-context.md`, `context/progress-tracker.md`, `context/change-log.md`.
+- **Tests run:** `dart format` passed; `flutter analyze` passed with no issues; focused toolbar, writing tool, media, and canvas tests passed (51 tests); full `flutter test` passed (99 tests).
+- **Check by hand:** Switch between normal and tools mode; swipe the tools row to reach Back on a narrow phone; select each writing tool and check its selected state; test the ruler, start and stop recording, clear handwriting, and confirm active text/voice behavior remains as expected.
+- **Needs your attention:** On narrow screens the Back control follows the tools and may require horizontal scrolling to reach.
+
 ## 2026-10-18: Use circle arrow for More tools
 - **Before:** The More tools button showed a plain forward arrow.
 - **After:** The button shows the custom circle-arrow SVG.

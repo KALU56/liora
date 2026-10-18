@@ -59,8 +59,8 @@ Note cards show title, page count, relative modification time, and in grid view 
 | **Add content (+)** | Opens a popover: Add photo, Add file, Add link |
 | **Handwriting / drawing** | Toggles drawing mode and closes text editing and popovers. Pointer input then makes strokes |
 | **Pan page** | Toggles page drag mode; drawing input is disabled until pan mode is turned off |
-| **Pen settings** | Turns on drawing and toggles the pen settings popover; uses the custom pen SVG |
-| **More tools (circle arrow)** | Opens the expanded tools popover: Pen, Pencil, Highlighter, Eraser, Shapes (custom SVG icons), Ruler, Record audio / Stop audio recording, Clear handwriting (custom clear SVG) |
+| **Pen settings** | Turns on drawing and toggles a settings popover with color, width, and opacity controls for the selected drawing tool; for Eraser, it shows the eraser size control |
+| **More tools (circle arrow) / Back (left arrow)** | Toggles the toolbar between normal mode and tools mode. In tools mode, Pen, Pencil, Highlighter, Eraser, Shapes, Ruler, Record audio / Stop audio recording, and Clear handwriting replace the normal controls. Shapes opens a nested row with each shape type and the fill toggle. Back from that row returns to tools mode; Back again returns to normal mode. Selecting tools, recording, and clearing handwriting keep the current mode open. The toolbar scrolls horizontally when a row is wider than the screen. |
 
 ### Add content popover
 
@@ -71,7 +71,7 @@ Note cards show title, page count, relative modification time, and in grid view 
 | **Add link** | Entry dialog. A missing scheme becomes `https://`, the address is validated, then stored as `url:<address>`. The page shows a link row. Tapping calls `url_launcher`. Invalid or unopenable links show an error snackbar |
 | **Nothing selected** | Cancels with no change |
 
-### Expanded tools popover extras
+### Tools mode actions
 
 | Item | Behavior |
 |---|---|
@@ -80,10 +80,12 @@ Note cards show title, page count, relative modification time, and in grid view 
 
 ## 5. Pen settings and tool controls
 
-Choosing a tool updates the current page's `ToolConfig`, turns on drawing mode,
-closes the popover, and saves the note. Pen, Pencil, Highlighter, Eraser, and
-Shapes use SVG assets from `assets/icons/` in the selector and popovers. They
-inherit the current icon theme color for selected and unselected states.
+Choosing a tool in toolbar tools mode updates the current page's `ToolConfig`,
+turns on drawing mode, keeps tools mode open, and saves the note. Pen settings
+does not switch tools; it only adjusts the selected tool. Pen, Pencil,
+Highlighter, Eraser, and Shapes use SVG assets from `assets/icons/` in tools
+mode. They inherit the current icon theme color for selected and unselected
+states. Shape type and fill are controlled in the nested Shape toolbar row.
 
 | Control | Behavior |
 |---|---|
@@ -91,10 +93,9 @@ inherit the current icon theme color for selected and unselected states.
 | **Color swatches** | Black, blue, red, green, yellow. Update the active page tool color |
 | **Width slider** | Stroke width 1 to 32 logical units |
 | **Opacity slider** | 0.1 to 1.0 |
-| **Fine pen preset** | Default pen with width 1.5 |
 | **Eraser size** | Small or Large (radius from `EraserSize`). Moving the pointer erases intersecting strokes |
-| **Shape type** | Line, rectangle, square, oval, circle, triangle, arrow. Dragging creates a shape stroke |
-| **Fill shape** | Toggles filled rendering for supported shapes |
+| **Shape type** | In the Shape toolbar row: Line, rectangle, square, oval, circle, triangle, arrow. Dragging creates a shape stroke |
+| **Fill shape** | In the Shape toolbar row: toggles filled rendering for supported shapes |
 | **Ruler** | A movable, rotatable overlay. Drawing against its edge makes a straight stroke. Dismissing it switches the tool back to pen |
 
 Tool values are **copied into each new stroke**. Changing the tool never restyles

@@ -28,6 +28,7 @@ check. Anyone who works on a feature should verify its row against the code.*
 | Accent color picker | Done | `foundation_library_test`, `accent_color_storage_test` | Persisted via SharedPreferences |
 | Light and dark theme (system) | Done | `foundation_library_test` | |
 | Note lifecycle and auto-save | Done | `note_persistence_test`, `note_editor_redesign_test` | |
+| Floating toolbar mode switching | Done | `note_editor_redesign_test`, `digital_writing_tools_test`, `editor_media_flow_test` | Shape options open as a nested row; Back moves between shape, tools, and normal modes |
 | Multiple pages: add, next, previous | Partial | `note_persistence_test` | No reorder, thumbnails, or delete page |
 | Paper: blank, ruled, grid, dotted, color, orientation, spacing | Done | `paper_template_engine_test` | |
 | Handwriting: pen, pencil, highlighter | Done | `handwriting_canvas_test`, `digital_writing_tools_test` | |
@@ -83,7 +84,7 @@ check. Anyone who works on a feature should verify its row against the code.*
 
 *(The user fills this in. The AI updates it when work starts or ends.)*
 
-- Working on: No remaining code fixes in the maintenance list.
+- Working on: No active code task.
 - Next: Check media and speech permissions on supported target devices/platforms.
 - Waiting for the user: ISSUE-017 needs a real target device; this workspace has no Android/iOS emulator or device.
 
